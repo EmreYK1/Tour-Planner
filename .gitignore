@@ -1,4 +1,7 @@
-/target/
+# .gitignore
+# Ignoriert Build-Artefakte und IDE-Dateien im Repo-Root.
+
+target/
 /.idea/
 *.iml
 .project

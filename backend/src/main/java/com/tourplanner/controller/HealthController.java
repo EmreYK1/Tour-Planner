@@ -1,3 +1,5 @@
+// backend/src/main/java/com/tourplanner/controller/HealthController.java
+// Liefert einen einfachen Health-Check unter GET /api/health.
 package com.tourplanner.controller;
 
 import org.springframework.http.MediaType;

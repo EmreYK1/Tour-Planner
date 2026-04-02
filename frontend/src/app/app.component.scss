@@ -1,0 +1,22 @@
+// frontend/src/app/app.component.scss
+// Styles ausschließlich für die Root-Komponente.
+
+.shell {
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.tour-list {
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.muted {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.error {
+  color: #a40000;
+}
