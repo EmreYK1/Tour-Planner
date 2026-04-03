@@ -1,25 +1,27 @@
 // frontend/src/app/app.component.ts
-// Root-Komponente der Angular-App (Shell).
+// App-Hauptkomponente.
+
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { TourStateService } from './services/tour-state.service';
+import { TourListComponent } from './components/tour-list/tour-list.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule],
+  standalone: true,
+  imports: [RouterOutlet, CommonModule, TourListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
   title = 'Tour Planner';
+  
+  // Holt den zentralen State-Service rein
   private readonly tourState = inject(TourStateService);
 
-  readonly tours = this.tourState.tours;
-  readonly loadError = this.tourState.loadError;
-  readonly loading = this.tourState.loading;
-
+  // Lädt die Touren beim Start der Komponente einmalig vom Backend
   ngOnInit(): void {
     this.tourState.loadTours();
   }

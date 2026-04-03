@@ -1,5 +1,5 @@
 // frontend/src/app/services/tour-state.service.ts
-// Zentrales State-Management für die Touren (Single Source of Truth).
+// Zentraler State-Service für die Touren (unser "Speicher").
 
 import { Injectable, inject, signal } from '@angular/core';
 import { TourApiService } from './tour-api.service';
@@ -9,21 +9,22 @@ import type { Tour } from '../models/tour.model';
 export class TourStateService {
   private readonly tourApi = inject(TourApiService);
 
-  // Private Signals: Nur dieser Service darf Werte mit .set() oder .update() verändern
+  // Interne Daten (dürfen nur hier geändert werden)
   private readonly _tours = signal<Tour[]>([]);
   private readonly _loading = signal(false);
   private readonly _loadError = signal<string | null>(null);
 
-  // Öffentliche Schnittstelle: Striktes "Read-Only". Komponenten können nur lesen!
+  // Nach außen hin Read-Only machen, damit niemand aus Versehen Daten überschreibt
   readonly tours = this._tours.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly loadError = this._loadError.asReadonly();
 
   private hasLoaded = false;
 
+  // Holt die Touren nur dann vom Backend, wenn sie noch nicht geladen wurden
   loadTours(): void {
     if (this.hasLoaded || this._loading()) {
-      return; // Bereits geladen oder Lädt gerade
+      return;
     }
 
     this._loading.set(true);
@@ -44,3 +45,4 @@ export class TourStateService {
     });
   }
 }
+

@@ -1,27 +1,9 @@
 <!-- frontend/src/app/app.component.html -->
-<!-- Template der Root-Komponente: zeigt Verbindung zum Backend und geladene Touren. -->
-<main class="shell">
-  <h1>{{ title }}</h1>
-
-  @if (loading()) {
-    <p class="muted">Lade Touren vom Backend …</p>
-  }
-
-  @if (loadError(); as err) {
-    <p class="error" role="alert">{{ err }}</p>
-  }
-
-  @if (!loading() && !loadError()) {
-    <p class="muted">{{ tours().length }} Tour(en) vom Backend geladen.</p>
-    <ul class="tour-list">
-      @for (t of tours(); track t.id) {
-        <li>
-          <strong>{{ t.name }}</strong>
-          <span class="muted"> — {{ t.from }} → {{ t.to }} ({{ t.transportType }})</span>
-        </li>
-      }
-    </ul>
-  }
-</main>
-
-<router-outlet />
+<!-- Template der Root-Komponente: Layout mit Sidebar. -->
+<div class="app-layout">
+  <app-tour-list></app-tour-list>
+  
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

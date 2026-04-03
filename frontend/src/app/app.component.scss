@@ -1,22 +1,19 @@
 // frontend/src/app/app.component.scss
-// Styles ausschließlich für die Root-Komponente.
+// Styles für das Root-Layout (Sidebar + Main Content).
 
-.shell {
-  max-width: 40rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
-.tour-list {
-  margin: 1rem 0 0;
-  padding-left: 1.25rem;
-}
-
-.muted {
-  color: #555;
-  font-size: 0.95rem;
-}
-
-.error {
-  color: #a40000;
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
 }
