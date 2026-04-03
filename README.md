@@ -59,7 +59,29 @@ Wir haben hart daran gearbeitet, alle Anforderungen der Intermediate-Checkliste 
 4. Öffne im Browser: `http://localhost:4200`
 
 ### Backend (Java / Spring Boot)
-1. Wechsle in den Backend-Ordner (`/backend`).
-2. Nutze deine IDE oder den Maven Wrapper zum Starten des Projekts: `./mvnw spring-boot:run`
-3. Das Backend sollte nun auf dem konfigurierten Port (standardmäßig `8080`) auf Anfragen warten.
-!
+Voraussetzungen: **JDK 17** und **Apache Maven** installiert (`java` und `mvn` im PATH), oder Start über eine IDE mit Maven-Unterstützung.
+
+1. Wechsle in den Backend-Ordner (`backend`).
+2. Start im Terminal:
+   - **Ohne PostgreSQL** (lokales Profil mit H2):  
+     `mvn spring-boot:run -Dspring-boot.run.profiles=dev`
+   - **Mit PostgreSQL** (wie in `application.properties`):  
+     `mvn spring-boot:run`
+3. Das Backend lauscht standardmäßig auf **`http://localhost:8080`**.
+
+**Hinweis:** In diesem Repository liegt kein Maven Wrapper (`mvnw`). Wer nur die Kommandozeile nutzt, braucht ein installiertes Maven. Alternativ: In der IDE die Klasse `TourPlannerApplication` ausführen und das Profil **`dev`** setzen (`spring.profiles.active=dev`), wenn keine Postgres-Instanz läuft.
+
+### Alles mit Docker (PostgreSQL + Backend + Frontend)
+
+Voraussetzung: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows) mit aktiviertem WSL2-Backend, oder Docker Engine + Compose.
+
+Im **Projektroot** (`Tour-Planner`, dort wo `docker-compose.yml` liegt):
+
+```bash
+docker compose up --build
+```
+
+- **Frontend:** [http://localhost:4200](http://localhost:4200) (Nginx liefert die gebaute Angular-App; `/api` wird an das Backend weitergeleitet)
+- **Backend direkt:** [http://localhost:8080](http://localhost:8080)
+
+Beenden: `docker compose down` (Datenbank-Daten bleiben im Volume `pgdata` erhalten; Volume löschen: `docker compose down -v`).
