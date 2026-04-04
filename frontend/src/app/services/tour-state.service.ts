@@ -13,6 +13,7 @@ export class TourStateService {
   private readonly _tours = signal<Tour[]>([]);
   private readonly _loading = signal(false);
   private readonly _loadError = signal<string | null>(null);
+  private readonly _selectedError = signal<Tour | null>(null);
 
   // Nach außen hin Read-Only machen, damit niemand aus Versehen Daten überschreibt
   readonly tours = this._tours.asReadonly();
@@ -29,7 +30,7 @@ export class TourStateService {
 
     this._loading.set(true);
     this._loadError.set(null);
-    
+
     this.tourApi.getAll().subscribe({
       next: (data) => {
         this._tours.set(data);
