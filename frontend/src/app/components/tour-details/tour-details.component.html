@@ -1,0 +1,10 @@
+@if (selectedTour(); as tour) {
+<div class="tour-details">
+  <h2>Details für: {{ tour.name }}</h2>
+  <!-- Der Rest (Description, Route etc.) kommt erst im nächsten Ticket -->
+</div>
+} @else {
+<div class="empty-state">
+  <p>Bitte wähle links eine Tour aus.</p>
+</div>
+}

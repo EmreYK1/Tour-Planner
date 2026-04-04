@@ -3,21 +3,21 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 
 import { TourStateService } from './services/tour-state.service';
 import { TourListComponent } from './components/tour-list/tour-list.component';
+import { TourDetailsComponent } from './components/tour-details/tour-details.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, TourListComponent],
+  imports: [TourDetailsComponent, CommonModule, TourListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
   title = 'Tour Planner';
-  
+
   // Holt den zentralen State-Service rein
   private readonly tourState = inject(TourStateService);
 
