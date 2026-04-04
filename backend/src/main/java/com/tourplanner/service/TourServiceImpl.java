@@ -54,4 +54,13 @@ public class TourServiceImpl implements TourService {
         Tour saved = tourRepository.save(entity);
         return tourMapper.toDto(saved);
     }
+
+    @Override
+    @Transactional
+    public void delete(long id) {
+        if (!tourRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        tourRepository.deleteById(id);
+    }
 }
