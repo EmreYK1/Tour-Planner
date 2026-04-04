@@ -14,4 +14,6 @@ public interface TourService {
     Optional<TourDto> findById(long id);
 
     TourDto create(TourDto tour);
+
+    TourDto update(long id, TourDto dto);
 }

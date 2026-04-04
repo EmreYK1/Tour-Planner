@@ -6,8 +6,10 @@ import com.tourplanner.dto.TourDto;
 import com.tourplanner.mapper.TourMapper;
 import com.tourplanner.model.Tour;
 import com.tourplanner.repository.TourRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +41,16 @@ public class TourServiceImpl implements TourService {
     @Transactional
     public TourDto create(TourDto tour) {
         Tour entity = tourMapper.toNewEntity(tour);
+        Tour saved = tourRepository.save(entity);
+        return tourMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public TourDto update(long id, TourDto dto) {
+        Tour entity = tourRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        tourMapper.apply(dto, entity);
         Tour saved = tourRepository.save(entity);
         return tourMapper.toDto(saved);
     }

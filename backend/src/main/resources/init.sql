@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS tours (
     image VARCHAR(2000)
 );
 
--- Demo-Tour nur anlegen, wenn es noch keine gleichnamige Zeile gibt
+-- Demo-Tour 
 INSERT INTO tours (name, description, from_place, to_place, transport_type, distance, estimated_time_seconds, image)
 SELECT 'Wienerwald Tour',
     'Rundtour durch den Wienerwald mit Aussichtspunkten und ruhigen Waldwegen.',
