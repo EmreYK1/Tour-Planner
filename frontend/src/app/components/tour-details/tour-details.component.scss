@@ -1,0 +1,97 @@
+.tour-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 900px;
+  /* Begrenzt die Breite, damit es auf riesigen Bildschirmen gut aussieht */
+
+  h2 {
+    margin: 0;
+    color: #ffffff;
+    /* Weißer Titel passend zum dunklen Layout */
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+}
+
+.tour-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+  /* Etwas weichere Ecken */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  /* Kräftigerer Schatten für Tiefenwirkung im Darkmode */
+}
+
+.description {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #cad5e2;
+  /* Ein sanftes Hellgrau/Blau - besser zu lesen als grelles Weiß */
+  margin: 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  /* Premium Dark Mode Glassmorphismus-Effekt */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  .info-item {
+    font-size: 1rem;
+    color: #94a3b8;
+    /* Hellgrau für die Labels */
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+
+    strong {
+      color: #ffffff;
+      /* Weiß für die Werte */
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.map-placeholder {
+  min-height: 350px;
+  /* Dunkler, dezenter Platzhalter mit gestricheltem Rand anstatt massiver Farbblock */
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  /* Kleine Animation für später */
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  span {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+  }
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #64748b;
+  font-size: 1.2rem;
+}

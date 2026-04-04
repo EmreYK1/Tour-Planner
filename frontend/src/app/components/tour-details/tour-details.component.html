@@ -1,7 +1,41 @@
 @if (selectedTour(); as tour) {
 <div class="tour-details">
-  <h2>Details für: {{ tour.name }}</h2>
-  <!-- Der Rest (Description, Route etc.) kommt erst im nächsten Ticket -->
+  <h2>{{ tour.name }}</h2>
+
+  <!-- Bild nur anzeigen, wenn auch eines vorhanden ist -->
+  @if (tour.image) {
+  <!-- Wenn tour.image nicht geladen werden kann, lädt er (error) ein Dummy-Naturbild -->
+  <img [src]="tour.image" alt="Bild der Tour {{ tour.name }}" class="tour-image"
+    (error)="tour.image = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1000&auto=format&fit=crop'">
+  }
+
+
+  <p class="description">{{ tour.description }}</p>
+
+  <div class="info-grid">
+    <div class="info-item">
+      <span>Route:</span>
+      <strong>{{ tour.from }} ➔ {{ tour.to }}</strong>
+    </div>
+    <div class="info-item">
+      <span>Transport:</span>
+      <strong>{{ tour.transportType }}</strong>
+    </div>
+    <div class="info-item">
+      <span>Distanz:</span>
+      <strong>{{ tour.distance }} km</strong>
+    </div>
+    <div class="info-item">
+      <span>Dauer:</span>
+      <strong>{{ formatDuration(tour.estimatedTime) }}</strong>
+    </div>
+  </div>
+
+
+  <!-- Der definierte Planbereich für die Karte -->
+  <div class="map-placeholder">
+    <span>Kartenansicht (folgt)</span>
+  </div>
 </div>
 } @else {
 <div class="empty-state">

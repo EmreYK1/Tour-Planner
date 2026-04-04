@@ -13,12 +13,13 @@ export class TourStateService {
   private readonly _tours = signal<Tour[]>([]);
   private readonly _loading = signal(false);
   private readonly _loadError = signal<string | null>(null);
-  private readonly _selectedError = signal<Tour | null>(null);
+  private readonly _selectedTour = signal<Tour | null>(null);
 
   // Nach außen hin Read-Only machen, damit niemand aus Versehen Daten überschreibt
   readonly tours = this._tours.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly loadError = this._loadError.asReadonly();
+  readonly selectedTour = this._selectedTour.asReadonly();
 
   private hasLoaded = false;
 
@@ -44,6 +45,10 @@ export class TourStateService {
         this._loading.set(false);
       }
     });
+  }
+
+  selectTour(tour: Tour | null): void {
+    this._selectedTour.set(tour);
   }
 }
 
