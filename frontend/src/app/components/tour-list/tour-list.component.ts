@@ -4,6 +4,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourStateService } from '../../services/tour-state.service';
+import type { Tour } from '../../models/tour.model';
 
 @Component({
   selector: 'app-tour-list',
@@ -20,4 +21,9 @@ export class TourListComponent {
   readonly tours = this.tourState.tours;
   readonly loading = this.tourState.loading;
   readonly loadError = this.tourState.loadError;
+  readonly selectedTour = this.tourState.selectedTour;
+
+  onTourClick(tour: Tour): void {
+    this.tourState.selectTour(tour);
+  }
 }
