@@ -16,4 +16,22 @@
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
+  background-color: var(--bg-primary, #f8f9fa);
+}
+
+.form-overlay {
+  width: 100%;
+  max-width: 800px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

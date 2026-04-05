@@ -26,4 +26,8 @@ export class TourListComponent {
   onTourClick(tour: Tour): void {
     this.tourState.selectTour(tour);
   }
+
+  toggleForm(): void {
+    this.tourState.toggleForm();
+  }
 }

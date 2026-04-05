@@ -14,12 +14,14 @@ export class TourStateService {
   private readonly _loading = signal(false);
   private readonly _loadError = signal<string | null>(null);
   private readonly _selectedTour = signal<Tour | null>(null);
+  private readonly _showForm = signal(false)
 
   // Nach außen hin Read-Only machen, damit niemand aus Versehen Daten überschreibt
   readonly tours = this._tours.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly loadError = this._loadError.asReadonly();
   readonly selectedTour = this._selectedTour.asReadonly();
+  readonly showForm = this._showForm.asReadonly();
 
   private hasLoaded = false;
 
@@ -46,9 +48,27 @@ export class TourStateService {
       }
     });
   }
+  // Eine Methode, um das Formular zu öffnen/schließen 
+  toggleForm(): void {
+    this._showForm.update(val => !val);
+  }
 
   selectTour(tour: Tour | null): void {
     this._selectedTour.set(tour);
   }
+
+  addTour(tour: Tour): void {
+    // Wir nehmen die alte Liste und hängen die neue Tour hinten an
+    this._tours.update(list => [...list, tour]);
+
+    // Danach schließen wir das Formular automatisch
+    this._showForm.set(false);
+
+    // Wir wählen die neue Tour direkt aus, damit sie in der Liste hervorgehoben wird
+    this.selectTour(tour);
+
+
+  }
+
 }
 

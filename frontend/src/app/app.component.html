@@ -4,6 +4,12 @@
   <app-tour-list></app-tour-list>
 
   <main class="main-content">
-    <app-tour-details></app-tour-details>
+    @if (showForm()) {
+      <div class="form-overlay">
+        <app-tour-form></app-tour-form>
+      </div>
+    } @else {
+      <app-tour-details></app-tour-details>
+    }
   </main>
 </div>
