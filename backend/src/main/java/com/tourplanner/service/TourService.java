@@ -16,4 +16,6 @@ public interface TourService {
     TourDto create(TourDto tour);
 
     TourDto update(long id, TourDto dto);
+
+    void delete(long id);
 }

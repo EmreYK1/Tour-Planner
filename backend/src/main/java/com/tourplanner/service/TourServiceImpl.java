@@ -39,6 +39,7 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public TourDto create(TourDto tour) {
         Tour entity = tourMapper.toNewEntity(tour);
         Tour saved = tourRepository.save(entity);
@@ -47,6 +48,7 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public TourDto update(long id, TourDto dto) {
         Tour entity = tourRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
