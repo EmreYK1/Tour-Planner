@@ -40,8 +40,16 @@
     <span>Kartenansicht (folgt)</span>
   </div>
 </div>
+
+<div class ="actions">
+  <button type="button" class="btn-delete" (click)="deleteTour()">
+    Tour löschen
+  </button>
+</div>
+
 } @else {
 <div class="empty-state">
   <p>Bitte wähle links eine Tour aus.</p>
 </div>
 }
+

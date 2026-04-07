@@ -87,6 +87,36 @@
   }
 }
 
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.btn-delete {
+  background: linear-gradient(180deg, #ef4444, #dc2626);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.28);
+}
+.btn-delete:hover {
+  background: linear-gradient(180deg, #f87171, #ef4444);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(239, 68, 68, 0.35);
+}
+.btn-delete:active {
+  transform: translateY(0);
+}
+.btn-delete:focus-visible {
+  outline: 2px solid #fca5a5;
+  outline-offset: 2px;
+}
+
 .empty-state {
   display: flex;
   justify-content: center;
