@@ -15,6 +15,7 @@ export class TourStateService {
   private readonly _loadError = signal<string | null>(null);
   private readonly _selectedTour = signal<Tour | null>(null);
   private readonly _showForm = signal(false)
+  private readonly _tourToEdit = signal<Tour | null>(null);
 
   // Nach außen hin Read-Only machen, damit niemand aus Versehen Daten überschreibt
   readonly tours = this._tours.asReadonly();
@@ -22,6 +23,7 @@ export class TourStateService {
   readonly loadError = this._loadError.asReadonly();
   readonly selectedTour = this._selectedTour.asReadonly();
   readonly showForm = this._showForm.asReadonly();
+  readonly tourToEdit = this._tourToEdit.asReadonly();
 
   private hasLoaded = false;
 
@@ -70,5 +72,21 @@ export class TourStateService {
 
   }
 
+  updateTourInState(updatedTour: Tour): void {
+    this._tours.update(list => list.map(t => t.id === updatedTour.id ? updatedTour : t));
+
+    this.selectTour(updatedTour);
+  }
+
+  // Methode, um das Bearbeiten zu starten
+  openEditForm(tour: Tour): void {
+    this._tourToEdit.set(tour);
+    this._showForm.set(true);
+  }
+
+  openCreateForm(): void {
+    this._tourToEdit.set(null);
+    this._showForm.set(true);
+  }
 }
 

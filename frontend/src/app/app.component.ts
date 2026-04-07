@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
   private readonly tourState = inject(TourStateService);
 
   readonly showForm = this.tourState.showForm;
+  readonly tourToEdit = this.tourState.tourToEdit;
 
   // Lädt die Touren beim Start der Komponente einmalig vom Backend
   ngOnInit(): void {

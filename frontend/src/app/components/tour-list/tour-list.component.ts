@@ -28,6 +28,6 @@ export class TourListComponent {
   }
 
   toggleForm(): void {
-    this.tourState.toggleForm();
+    this.tourState.openCreateForm();
   }
 }

@@ -1,6 +1,9 @@
 @if (selectedTour(); as tour) {
 <div class="tour-details">
-  <h2>{{ tour.name }}</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2>{{ tour.name }}</h2>
+    <button (click)="onEdit(tour)" style="padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer;">Bearbeiten</button>
+  </div>
 
   <!-- Bild nur anzeigen, wenn auch eines vorhanden ist -->
   @if (tour.image) {

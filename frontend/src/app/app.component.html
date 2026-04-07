@@ -6,7 +6,7 @@
   <main class="main-content">
     @if (showForm()) {
       <div class="form-overlay">
-        <app-tour-form></app-tour-form>
+        <app-tour-form [tourToEdit]="tourToEdit()"></app-tour-form>
       </div>
     } @else {
       <app-tour-details></app-tour-details>

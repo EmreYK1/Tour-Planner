@@ -23,5 +23,9 @@ export class TourDetailsComponent {
     const formattedMinutes = minutes.toString().padStart(2, '0');
     return `${hours}h ${formattedMinutes}min`;
   }
+
+  onEdit(tour: any): void {
+    this.tourState.openEditForm(tour);
+  }
 }
 

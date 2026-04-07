@@ -23,4 +23,9 @@ export class TourApiService {
   create(tour: Tour): Observable<Tour> {
     return this.http.post<Tour>(this.resourceUrl, tour);
   }
+
+  update(id: number, tour: Tour): Observable<Tour> {
+    return this.http.put<Tour>(`${this.resourceUrl}/${id}`, tour);
+  }
 }
+
