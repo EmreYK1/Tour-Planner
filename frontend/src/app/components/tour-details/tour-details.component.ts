@@ -3,7 +3,11 @@
 
 import { Component, inject } from '@angular/core';
 import { TourStateService } from '../../services/tour-state.service';
+<<<<<<< HEAD
 import { TourUiStateService } from '../../services/tour-ui-state.service';
+=======
+import { TourApiService } from '../../services/tour-api.service';
+>>>>>>> 94b8e35 (Delete Funktion angelegt)
 
 @Component({
   selector: 'app-tour-details',
@@ -13,7 +17,11 @@ import { TourUiStateService } from '../../services/tour-ui-state.service';
 })
 export class TourDetailsComponent {
   private readonly tourState = inject(TourStateService);
+<<<<<<< HEAD
   private readonly tourUiState = inject(TourUiStateService);
+=======
+  private readonly tourApi = inject(TourApiService);
+>>>>>>> 94b8e35 (Delete Funktion angelegt)
 
   // Die aktuell ausgewählte Tour – null wenn noch nichts angeklickt wurde
   readonly selectedTour = this.tourState.selectedTour;
@@ -30,4 +38,21 @@ export class TourDetailsComponent {
   onEdit(tour: any): void {
     this.tourUiState.openEditForm(tour);
   }
+
+  deleteTour(): void {
+    const tour = this.selectedTour();
+
+    if(!tour || tour.id == null) {
+      return;
+    }
+
+    const id = tour.id;
+    if (!confirm('Möchtest du diese Tour wirklich löschen?')) return;
+
+    this.tourApi.delete(id).subscribe({
+    next: () => this.tourState.removeTourFromState(id),
+    error: () => alert('Löschen fehlgeschlagen. Bitte versuche es erneut.')
+    });
+ }
+
 }

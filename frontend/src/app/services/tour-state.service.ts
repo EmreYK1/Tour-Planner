@@ -53,6 +53,16 @@ export class TourStateService {
   selectTour(tour: Tour | null): void {
     this._selectedTour.set(tour);
   }
+<<<<<<< HEAD
+=======
+
+  // Entfernt eine Tour aus dem State und setzt die ausgewählte Tour auf null
+  removeTourFromState(id: number): void {
+    this._tours.update((list) => list.filter((t) => t.id !== id));
+    this.selectTour(null);
+  }
+}
+>>>>>>> 94b8e35 (Delete Funktion angelegt)
 
   // Fügt eine neue Tour lokal hinzu und wählt sie direkt aus
   addTour(tour: Tour): void {

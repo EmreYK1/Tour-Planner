@@ -29,8 +29,17 @@ export class TourApiService {
     return this.http.post<Tour>(this.resourceUrl, tour);
   }
 
+<<<<<<< HEAD
   // Aktualisiert eine bestehende Tour – das Backend gibt die aktualisierte Tour zurück
   update(id: number, tour: Tour): Observable<Tour> {
     return this.http.put<Tour>(`${this.resourceUrl}/${id}`, tour);
+=======
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.resourceUrl}/${id}`);
+>>>>>>> 94b8e35 (Delete Funktion angelegt)
   }
 }
+
+
+
+
