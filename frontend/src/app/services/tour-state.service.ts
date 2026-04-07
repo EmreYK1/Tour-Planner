@@ -1,5 +1,6 @@
 // frontend/src/app/services/tour-state.service.ts
-// Zentraler State-Service für die Touren (unser "Speicher").
+// Verwaltet die Touren-Daten: Liste, Ladezustand und die aktuell ausgewählte Tour.
+// UI-State (Formular sichtbar, welche Tour wird bearbeitet) lebt im TourUiStateService.
 
 import { Injectable, inject, signal } from '@angular/core';
 import { TourApiService } from './tour-api.service';
@@ -9,25 +10,22 @@ import type { Tour } from '../models/tour.model';
 export class TourStateService {
   private readonly tourApi = inject(TourApiService);
 
-  // Interne Daten (dürfen nur hier geändert werden)
+  // Interne Signals – nur dieser Service darf sie verändern
   private readonly _tours = signal<Tour[]>([]);
   private readonly _loading = signal(false);
   private readonly _loadError = signal<string | null>(null);
   private readonly _selectedTour = signal<Tour | null>(null);
-  private readonly _showForm = signal(false)
-  private readonly _tourToEdit = signal<Tour | null>(null);
 
-  // Nach außen hin Read-Only machen, damit niemand aus Versehen Daten überschreibt
+  // Nach außen nur lesbar – Komponenten können keine Daten direkt überschreiben
   readonly tours = this._tours.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly loadError = this._loadError.asReadonly();
   readonly selectedTour = this._selectedTour.asReadonly();
-  readonly showForm = this._showForm.asReadonly();
-  readonly tourToEdit = this._tourToEdit.asReadonly();
 
+  // Verhindert mehrfaches Laden beim Navigieren hin und her
   private hasLoaded = false;
 
-  // Holt die Touren nur dann vom Backend, wenn sie noch nicht geladen wurden
+  // Lädt alle Touren vom Backend – passiert nur einmal, solange die App läuft
   loadTours(): void {
     if (this.hasLoaded || this._loading()) {
       return;
@@ -50,43 +48,21 @@ export class TourStateService {
       }
     });
   }
-  // Eine Methode, um das Formular zu öffnen/schließen 
-  toggleForm(): void {
-    this._showForm.update(val => !val);
-  }
 
+  // Setzt die aktuell angezeigte Tour (null = nichts ausgewählt)
   selectTour(tour: Tour | null): void {
     this._selectedTour.set(tour);
   }
 
+  // Fügt eine neue Tour lokal hinzu und wählt sie direkt aus
   addTour(tour: Tour): void {
-    // Wir nehmen die alte Liste und hängen die neue Tour hinten an
     this._tours.update(list => [...list, tour]);
-
-    // Danach schließen wir das Formular automatisch
-    this._showForm.set(false);
-
-    // Wir wählen die neue Tour direkt aus, damit sie in der Liste hervorgehoben wird
     this.selectTour(tour);
-
-
   }
 
+  // Tauscht eine Tour in der Liste aus (nach erfolgreichem Update vom Backend)
   updateTourInState(updatedTour: Tour): void {
     this._tours.update(list => list.map(t => t.id === updatedTour.id ? updatedTour : t));
-
     this.selectTour(updatedTour);
   }
-
-  // Methode, um das Bearbeiten zu starten
-  openEditForm(tour: Tour): void {
-    this._tourToEdit.set(tour);
-    this._showForm.set(true);
-  }
-
-  openCreateForm(): void {
-    this._tourToEdit.set(null);
-    this._showForm.set(true);
-  }
 }
-

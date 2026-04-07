@@ -1,6 +1,7 @@
 // frontend/src/app/models/tour.model.ts
-// Tour-Typen und Konstanten; JSON-Shape wie das Backend (/api/tours).
+// Typen und Konstanten für Touren – spiegeln exakt das JSON-Format der Backend-API wider.
 
+// Alle erlaubten Transportmittel als unveränderliches Tupel (as const = TypeScript kennt die genauen Werte)
 export const TRANSPORT_TYPES = [
   'WALK',
   'BICYCLE',
@@ -8,8 +9,10 @@ export const TRANSPORT_TYPES = [
   'PUBLIC_TRANSPORT',
 ] as const;
 
+// Abgeleiteter Union-Typ aus dem Array – nur diese vier Strings sind gültig
 export type TransportType = (typeof TRANSPORT_TYPES)[number];
 
+// Das zentrale Tour-Interface; id ist null solange die Tour noch nicht gespeichert wurde
 export interface Tour {
   id: number | null;
   name: string;
@@ -22,6 +25,7 @@ export interface Tour {
   image: string;
 }
 
+// Erzeugt eine leere Tour als Startwert – nützlich fürs Formular-Reset
 export function createEmptyTour(): Tour {
   return {
     id: null,
@@ -36,6 +40,7 @@ export function createEmptyTour(): Tour {
   };
 }
 
+// Beispiel-Tour für Entwicklung und manuelle Tests ohne Backend
 export const EXAMPLE_WIENERWALD_TOUR: Tour = {
   id: 1,
   name: 'Wienerwald Tour',

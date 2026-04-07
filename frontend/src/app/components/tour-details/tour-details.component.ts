@@ -1,5 +1,9 @@
+// frontend/src/app/components/tour-details/tour-details.component.ts
+// Zeigt alle Details der aktuell ausgewählten Tour an und bietet einen Edit-Button.
+
 import { Component, inject } from '@angular/core';
 import { TourStateService } from '../../services/tour-state.service';
+import { TourUiStateService } from '../../services/tour-ui-state.service';
 
 @Component({
   selector: 'app-tour-details',
@@ -9,23 +13,21 @@ import { TourStateService } from '../../services/tour-state.service';
 })
 export class TourDetailsComponent {
   private readonly tourState = inject(TourStateService);
+  private readonly tourUiState = inject(TourUiStateService);
 
-  // Dieses Signal leiten wir jetzt direkt an das HTML weiter
+  // Die aktuell ausgewählte Tour – null wenn noch nichts angeklickt wurde
   readonly selectedTour = this.tourState.selectedTour;
 
-  // Hilfsfunktion zur Umrechnung von Sekunden in "Xh YYmin"
+  // Rechnet Sekunden in ein lesbares Format um, z.B. 3661 → "1h 01min"
   formatDuration(seconds: number): string {
     if (!seconds) return '0h 00min';
-    const hours = Math.floor(seconds / 3600); // 1 Stunde hat 3600 Sekunden
+    const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-
-    // Damit Minuten wie "5" als "05" angezeigt werden, nutzen wir padStart
-    const formattedMinutes = minutes.toString().padStart(2, '0');
-    return `${hours}h ${formattedMinutes}min`;
+    return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
   }
 
+  // Öffnet das Formular im Bearbeiten-Modus mit der übergebenen Tour vorausgefüllt
   onEdit(tour: any): void {
-    this.tourState.openEditForm(tour);
+    this.tourUiState.openEditForm(tour);
   }
 }
-

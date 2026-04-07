@@ -1,9 +1,12 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+// frontend/src/app/components/tour-form/tour-form.component.ts
+// Formular-Komponente für Anlegen und Bearbeiten von Touren – ein und dieselbe Komponente für beides (DRY).
+
+import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { TourApiService } from '../../services/tour-api.service';
 import { TourStateService } from '../../services/tour-state.service';
+import { TourUiStateService } from '../../services/tour-ui-state.service';
 import { TRANSPORT_TYPES, type Tour } from '../../models/tour.model';
-
 
 @Component({
   selector: 'app-tour-form',
@@ -13,16 +16,17 @@ import { TRANSPORT_TYPES, type Tour } from '../../models/tour.model';
   styleUrl: './tour-form.component.scss'
 })
 export class TourFormComponent implements OnInit {
-  @Input() tourToEdit: Tour | null = null;
-
-  // Sinn: Wir holen uns die Werkzeugkästen für API und State in unsere Komponente.
   private readonly tourApi = inject(TourApiService);
   private readonly tourState = inject(TourStateService);
+  private readonly tourUiState = inject(TourUiStateService);
 
-  // Wir machen die Transporttypen im HTML verfügbar.
+  // Ob wir gerade eine bestehende Tour bearbeiten oder eine neue anlegen (null = neu)
+  readonly tourToEdit = this.tourUiState.tourToEdit;
+
+  // Für das Dropdown im Template – alle verfügbaren Transportmittel
   readonly transportTypes = TRANSPORT_TYPES;
 
-  // Mapping für schönere Labels im Dropdown
+  // Deutsche Labels für die Enum-Werte aus dem Backend
   readonly transportLabels: Record<typeof TRANSPORT_TYPES[number], string> = {
     WALK: 'Zu Fuß',
     BICYCLE: 'Fahrrad',
@@ -30,7 +34,7 @@ export class TourFormComponent implements OnInit {
     PUBLIC_TRANSPORT: 'Öffentliche Verkehrsmittel'
   };
 
-  // Das ist das digitale Abbild des Formulars inkl. Validierung.
+  // Das Reactive Form mit allen Feldern und Validierungsregeln
   tourForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
@@ -44,63 +48,63 @@ export class TourFormComponent implements OnInit {
     estimatedTime: new FormControl(0, { nonNullable: true, validators: [Validators.min(0)] })
   });
 
+  // Wenn eine Tour bearbeitet wird, Felder mit deren Werten vorausfüllen
   ngOnInit(): void {
-    if (this.tourToEdit) {
-      // Hier werden die Werte der Tour in die Formularfelder kopiert
-      this.tourForm.patchValue(this.tourToEdit);
+    const tour = this.tourUiState.tourToEdit();
+    if (tour) {
+      this.tourForm.patchValue(tour);
     }
   }
 
-
+  // Entscheidet anhand von tourToEdit ob wir erstellen oder aktualisieren
   onSubmit(): void {
-    if (this.tourForm.valid) {
-      const rawValues = this.tourForm.getRawValue();
+    if (!this.tourForm.valid) return;
 
-      // Wir bereiten die Daten vor
-      const tourData: Tour = {
-        ...rawValues,
-        id: this.tourToEdit ? this.tourToEdit.id : null,
-        image: this.tourToEdit ? this.tourToEdit.image : ''
-      };
+    const tour = this.tourUiState.tourToEdit();
+    const tourData = this.buildTourData(tour);
 
-      if (this.tourToEdit && this.tourToEdit.id) {
-        // --- MODUS: BEARBEITEN ---
-        this.tourApi.update(this.tourToEdit.id, tourData).subscribe({
-          next: (updatedTour) => {
-            this.tourState.updateTourInState(updatedTour);
-            this.handleSuccess();
-          },
-          error: (err) => this.handleError('aktualisieren', err)
-        });
-      } else {
-        // --- MODUS: ANLEGEN ---
-        this.tourApi.create(tourData).subscribe({
-          next: (createdTour) => {
-            this.tourState.addTour(createdTour);
-            this.handleSuccess();
-          },
-          error: (err) => this.handleError('erstellen', err)
-        });
-      }
+    if (tour?.id) {
+      this.tourApi.update(tour.id, tourData).subscribe({
+        next: (updatedTour) => {
+          this.tourState.updateTourInState(updatedTour);
+          this.handleSuccess();
+        },
+        error: (err) => this.handleError('aktualisieren', err)
+      });
+    } else {
+      this.tourApi.create(tourData).subscribe({
+        next: (createdTour) => {
+          this.tourState.addTour(createdTour);
+          this.handleSuccess();
+        },
+        error: (err) => this.handleError('erstellen', err)
+      });
     }
   }
 
-  // Hilfsmethode, um Duplikate im Code zu vermeiden (DRY!)
-  private handleSuccess(): void {
-    this.tourState.toggleForm();
-    this.tourForm.reset({
-      transportType: 'BICYCLE',
-      distance: 0,
-      estimatedTime: 0
-    });
+  // Schließt das Formular ohne zu speichern
+  onCancel(): void {
+    this.tourUiState.closeForm();
   }
 
-  private handleError(action: string, error: any): void {
+  // Baut ein fertiges Tour-Objekt aus den Formulardaten und der bestehenden Tour zusammen
+  private buildTourData(existing: Tour | null): Tour {
+    return {
+      ...this.tourForm.getRawValue(),
+      id: existing?.id ?? null,
+      image: existing?.image ?? ''
+    };
+  }
+
+  // Schließt das Formular und setzt alle Felder auf die Standardwerte zurück
+  private handleSuccess(): void {
+    this.tourUiState.closeForm();
+    this.tourForm.reset({ transportType: 'BICYCLE', distance: 0, estimatedTime: 0 });
+  }
+
+  // Zeigt einen Fehler in der Konsole und informiert den Nutzer per Alert
+  private handleError(action: string, error: unknown): void {
     console.error(`Fehler beim ${action} der Tour:`, error);
     alert('Die Tour konnte leider nicht gespeichert werden.');
-  }
-
-  onCancel(): void {
-    this.tourState.toggleForm();
   }
 }
