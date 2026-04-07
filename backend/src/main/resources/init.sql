@@ -12,6 +12,17 @@ CREATE TABLE IF NOT EXISTS tours (
     image VARCHAR(2000)
 );
 
+CREATE TABLE IF NOT EXISTS tour_logs (
+    id BIGSERIAL PRIMARY KEY,
+    tour_id BIGINT NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+    date_time TIMESTAMP NOT NULL,
+    comment TEXT,
+    difficulty INT NOT NULL,
+    total_distance DOUBLE PRECISION NOT NULL,
+    total_time BIGINT NOT NULL,
+    rating INT NOT NULL
+);
+
 -- Demo-Tour 
 INSERT INTO tours (name, description, from_place, to_place, transport_type, distance, estimated_time_seconds, image)
 SELECT 'Wienerwald Tour',
