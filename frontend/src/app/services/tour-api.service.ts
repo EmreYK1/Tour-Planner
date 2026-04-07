@@ -1,4 +1,4 @@
-﻿// frontend/src/app/services/tour-api.service.ts
+// frontend/src/app/services/tour-api.service.ts
 // Kümmert sich ausschließlich um HTTP-Calls – kein State, keine Logik, nur Daten holen und schicken.
 
 import { HttpClient } from '@angular/common/http';
@@ -29,6 +29,7 @@ export class TourApiService {
     return this.http.post<Tour>(this.resourceUrl, tour);
   }
 
+
   // Aktualisiert eine bestehende Tour – das Backend gibt die aktualisierte Tour zurück
   update(id: number, tour: Tour): Observable<Tour> {
     return this.http.put<Tour>(`${this.resourceUrl}/${id}`, tour);
@@ -39,3 +40,7 @@ export class TourApiService {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
   }
 }
+
+
+
+
