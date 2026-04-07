@@ -1,4 +1,4 @@
-// frontend/src/app/services/tour-state.service.ts
+﻿// frontend/src/app/services/tour-state.service.ts
 // Verwaltet die Touren-Daten: Liste, Ladezustand und die aktuell ausgewählte Tour.
 // UI-State (Formular sichtbar, welche Tour wird bearbeitet) lebt im TourUiStateService.
 
@@ -53,26 +53,22 @@ export class TourStateService {
   selectTour(tour: Tour | null): void {
     this._selectedTour.set(tour);
   }
-<<<<<<< HEAD
-=======
 
   // Entfernt eine Tour aus dem State und setzt die ausgewählte Tour auf null
   removeTourFromState(id: number): void {
     this._tours.update((list) => list.filter((t) => t.id !== id));
     this.selectTour(null);
   }
-}
->>>>>>> 94b8e35 (Delete Funktion angelegt)
 
   // Fügt eine neue Tour lokal hinzu und wählt sie direkt aus
   addTour(tour: Tour): void {
-    this._tours.update(list => [...list, tour]);
+    this._tours.update((list) => [...list, tour]);
     this.selectTour(tour);
   }
 
   // Tauscht eine Tour in der Liste aus (nach erfolgreichem Update vom Backend)
   updateTourInState(updatedTour: Tour): void {
-    this._tours.update(list => list.map(t => t.id === updatedTour.id ? updatedTour : t));
+    this._tours.update((list) => list.map((t) => (t.id === updatedTour.id ? updatedTour : t)));
     this.selectTour(updatedTour);
   }
 }

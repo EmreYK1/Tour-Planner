@@ -1,13 +1,11 @@
-// frontend/src/app/components/tour-details/tour-details.component.ts
-// Zeigt alle Details der aktuell ausgewählten Tour an und bietet einen Edit-Button.
+﻿// frontend/src/app/components/tour-details/tour-details.component.ts
+// Zeigt alle Details der aktuell ausgewählten Tour an und bietet Edit/Löschen.
 
 import { Component, inject } from '@angular/core';
-import { TourStateService } from '../../services/tour-state.service';
-<<<<<<< HEAD
-import { TourUiStateService } from '../../services/tour-ui-state.service';
-=======
+import type { Tour } from '../../models/tour.model';
 import { TourApiService } from '../../services/tour-api.service';
->>>>>>> 94b8e35 (Delete Funktion angelegt)
+import { TourStateService } from '../../services/tour-state.service';
+import { TourUiStateService } from '../../services/tour-ui-state.service';
 
 @Component({
   selector: 'app-tour-details',
@@ -17,11 +15,8 @@ import { TourApiService } from '../../services/tour-api.service';
 })
 export class TourDetailsComponent {
   private readonly tourState = inject(TourStateService);
-<<<<<<< HEAD
   private readonly tourUiState = inject(TourUiStateService);
-=======
   private readonly tourApi = inject(TourApiService);
->>>>>>> 94b8e35 (Delete Funktion angelegt)
 
   // Die aktuell ausgewählte Tour – null wenn noch nichts angeklickt wurde
   readonly selectedTour = this.tourState.selectedTour;
@@ -35,24 +30,20 @@ export class TourDetailsComponent {
   }
 
   // Öffnet das Formular im Bearbeiten-Modus mit der übergebenen Tour vorausgefüllt
-  onEdit(tour: any): void {
+  onEdit(tour: Tour): void {
     this.tourUiState.openEditForm(tour);
   }
 
   deleteTour(): void {
     const tour = this.selectedTour();
-
-    if(!tour || tour.id == null) {
-      return;
-    }
+    if (!tour || tour.id == null) return;
 
     const id = tour.id;
     if (!confirm('Möchtest du diese Tour wirklich löschen?')) return;
 
     this.tourApi.delete(id).subscribe({
-    next: () => this.tourState.removeTourFromState(id),
-    error: () => alert('Löschen fehlgeschlagen. Bitte versuche es erneut.')
+      next: () => this.tourState.removeTourFromState(id),
+      error: () => alert('Löschen fehlgeschlagen. Bitte versuche es erneut.')
     });
- }
-
+  }
 }
