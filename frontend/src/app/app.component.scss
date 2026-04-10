@@ -3,20 +3,34 @@
 
 .app-layout {
   display: flex;
+  flex-direction: row;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+  }
 }
 
 .main-content {
   flex: 1;
-  padding: 2rem;
+  padding: 2.5rem 3rem;
   overflow-y: auto;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  background-color: var(--bg-primary, #f8f9fa);
+  justify-content: flex-start;
+  align-items: stretch; /* Children stretch to fill full height */
+  /* Let the global body background shine through */
+  background-color: transparent;
+  
+  @media (max-width: 1200px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 800px) {
+    padding: 1rem;
+    min-height: calc(100vh - 350px);
+  }
 }
 
 .form-overlay {

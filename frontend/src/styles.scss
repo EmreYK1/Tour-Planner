@@ -1,20 +1,22 @@
 // frontend/src/styles.scss
 // Globale Styles für die gesamte Angular-App.
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-glass: rgba(15, 23, 42, 0.75);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --accent-transparent: rgba(59, 130, 246, 0.15);
+  /* Nature/Adventure Light Theme */
+  --bg-primary: #f0fdf4;     /* Extremely light mint/green tint */
+  --bg-secondary: #ffffff;   /* Pure white */
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --text-primary: #064e3b;   /* Deep emerald text */
+  --text-secondary: #4b5563; /* Gray */
+  --accent: #059669;         /* Darker Emerald Green */
+  --accent-hover: #047857;
+  --accent-transparent: rgba(5, 150, 105, 0.15);
+  --adventure-orange: #f59e0b;
   --danger: #ef4444;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --sidebar-width: 340px;
+  --border-color: rgba(5, 150, 105, 0.15);
+  --sidebar-width: 380px;
 }
 
 * {
@@ -24,11 +26,14 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-primary);
+  /* A beautiful, subtle atmospheric gradient: Emerald + Sunset Orange */
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+    radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.04), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(5, 150, 105, 0.02), transparent 60%);
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -37,16 +42,16 @@ body {
 
 /* Custom Scrollbar for global consistency */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(16, 185, 129, 0.2);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(16, 185, 129, 0.4);
 }
