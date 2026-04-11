@@ -1,0 +1,33 @@
+<div class="tour-log-list">
+  <h3>Tour Logs</h3>
+
+  @if (loading()) {
+    <p class="loading-message">Lade Logs...</p>
+  } @else if (loadError()) {
+    <p class="error-message">{{ loadError() }}</p>
+  } @else {
+    @if (logs().length === 0) {
+      <p class="empty-message">Noch keine Logs für diese Tour.</p>
+    } @else {
+      <div class="log-grid">
+        @for (log of logs(); track log.id) {
+          <div class="log-card">
+            <div class="log-header">
+              <span class="log-date">{{ log.dateTime | date:'dd.MM.yyyy HH:mm' }}</span>
+              <span class="log-rating">Rating: {{ log.rating }}/5</span>
+            </div>
+            <div class="log-body">
+              <p class="log-comment">{{ log.comment }}</p>
+              <div class="log-stats">
+                <span class="stat"><strong>Distanz:</strong> {{ log.totalDistance }} km</span>
+                <span class="stat"><strong>Dauer:</strong> {{ formatDuration(log.totalTime) }}</span>
+                <span class="stat"><strong>Schwierigkeit:</strong> {{ log.difficulty }}/10</span>
+              </div>
+            </div>
+            <!-- CRUD Buttons werden in T3.2.5 hinzugefügt -->
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

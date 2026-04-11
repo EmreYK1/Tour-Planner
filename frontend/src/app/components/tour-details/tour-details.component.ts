@@ -1,15 +1,18 @@
-﻿// frontend/src/app/components/tour-details/tour-details.component.ts
+// frontend/src/app/components/tour-details/tour-details.component.ts
 // Zeigt alle Details der aktuell ausgewählten Tour an und bietet Edit/Löschen.
 
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import type { Tour } from '../../models/tour.model';
 import { TourApiService } from '../../services/tour-api.service';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
+import { TourLogStateService } from '../../services/tour-log-state.service';
+import { TourLogListComponent } from '../tour-log-list/tour-log-list.component';
+import { formatDuration } from '../../utils/format-duration.util';
 
 @Component({
   selector: 'app-tour-details',
-  imports: [],
+  imports: [TourLogListComponent],
   templateUrl: './tour-details.component.html',
   styleUrl: './tour-details.component.scss'
 })
@@ -17,17 +20,24 @@ export class TourDetailsComponent {
   private readonly tourState = inject(TourStateService);
   private readonly tourUiState = inject(TourUiStateService);
   private readonly tourApi = inject(TourApiService);
+  private readonly tourLogState = inject(TourLogStateService);
 
   // Die aktuell ausgewählte Tour – null wenn noch nichts angeklickt wurde
   readonly selectedTour = this.tourState.selectedTour;
 
-  // Rechnet Sekunden in ein lesbares Format um, z.B. 3661 → "1h 01min"
-  formatDuration(seconds: number): string {
-    if (!seconds) return '0h 00min';
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
+  constructor() {
+    effect(() => {
+      const tour = this.selectedTour();
+      if (tour && tour.id) {
+        this.tourLogState.loadLogsForTour(tour.id);
+      } else {
+        this.tourLogState.reset();
+      }
+    });
   }
+
+  // Rechnet Sekunden in ein lesbares Format um, z.B. 3661 → "1h 01min"
+  readonly formatDuration = formatDuration;
 
   // Öffnet das Formular im Bearbeiten-Modus mit der übergebenen Tour vorausgefüllt
   onEdit(tour: Tour): void {

@@ -24,8 +24,10 @@ export class TourListComponent {
   readonly loadError = this.tourState.loadError;
   readonly selectedTour = this.tourState.selectedTour;
 
-  // Wird beim Klick auf ein Tour-Element in der Liste aufgerufen
+  // Wird beim Klick auf ein Tour-Element in der Liste aufgerufen.
+  // Offenes Formular wird geschlossen, damit die Tour-Details sichtbar sind.
   onTourClick(tour: Tour): void {
+    this.tourUiState.closeForm();
     this.tourState.selectTour(tour);
   }
 
