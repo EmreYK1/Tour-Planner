@@ -2,7 +2,7 @@
 // Zeigt alle Details der aktuell ausgewählten Tour an und bietet Edit/Löschen.
 
 import { Component, effect, inject } from '@angular/core';
-import type { Tour } from '../../models/tour.model';
+import { Tour, TRANSPORT_LABELS } from '../../models/tour.model';
 import { TourApiService } from '../../services/tour-api.service';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
@@ -34,11 +34,14 @@ export class TourDetailsComponent {
       } else {
         this.tourLogState.reset();
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   // Rechnet Sekunden in ein lesbares Format um, z.B. 3661 → "1h 01min"
   readonly formatDuration = formatDuration;
+
+  // Übersetzung der Enum-Werte für die Anzeige
+  readonly transportLabels = TRANSPORT_LABELS;
 
   // Öffnet das Formular im Bearbeiten-Modus mit der übergebenen Tour vorausgefüllt
   onEdit(tour: Tour): void {

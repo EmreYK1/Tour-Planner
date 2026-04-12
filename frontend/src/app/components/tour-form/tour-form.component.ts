@@ -6,7 +6,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { TourApiService } from '../../services/tour-api.service';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
-import { TRANSPORT_TYPES, type Tour } from '../../models/tour.model';
+import { TRANSPORT_TYPES, TRANSPORT_LABELS, type Tour } from '../../models/tour.model';
 import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
@@ -28,12 +28,7 @@ export class TourFormComponent implements OnInit {
   readonly transportTypes = TRANSPORT_TYPES;
 
   // Deutsche Labels für die Enum-Werte aus dem Backend
-  readonly transportLabels: Record<typeof TRANSPORT_TYPES[number], string> = {
-    WALK: 'Zu Fuß',
-    BICYCLE: 'Fahrrad',
-    CAR: 'Auto',
-    PUBLIC_TRANSPORT: 'Öffentliche Verkehrsmittel'
-  };
+  readonly transportLabels = TRANSPORT_LABELS;
 
   // Das Reactive Form mit allen Feldern und Validierungsregeln
   tourForm = new FormGroup({
@@ -54,7 +49,10 @@ export class TourFormComponent implements OnInit {
   ngOnInit(): void {
     const tour = this.tourUiState.tourToEdit();
     if (tour) {
-      this.tourForm.patchValue(tour);
+      this.tourForm.patchValue({
+        ...tour,
+        estimatedTime: tour.estimatedTime / 3600
+      });
     }
   }
 
@@ -91,8 +89,10 @@ export class TourFormComponent implements OnInit {
 
   // Baut ein fertiges Tour-Objekt aus den Formulardaten und der bestehenden Tour zusammen
   private buildTourData(existing: Tour | null): Tour {
+    const rawForm = this.tourForm.getRawValue();
     return {
-      ...this.tourForm.getRawValue(),
+      ...rawForm,
+      estimatedTime: rawForm.estimatedTime * 3600,
       id: existing?.id ?? null
     };
   }

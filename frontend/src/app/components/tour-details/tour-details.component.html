@@ -14,7 +14,7 @@
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
-          {{ tour.transportType }}
+          {{ transportLabels[tour.transportType] }}
         </span>
       </div>
       <h1 class="hero-title">{{ tour.name }}</h1>
@@ -75,7 +75,7 @@
       </div>
       <div class="stat-info">
         <span class="stat-label">Transport</span>
-        <span class="stat-value">{{ tour.transportType }}</span>
+        <span class="stat-value">{{ transportLabels[tour.transportType] }}</span>
       </div>
     </div>
     <div class="stat-card">

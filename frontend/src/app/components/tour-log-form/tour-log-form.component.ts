@@ -61,7 +61,11 @@ export class TourLogFormComponent implements OnInit {
   ngOnInit(): void {
     const log = this.logToEdit();
     if (log) {
-      this.logForm.patchValue(log);
+      this.logForm.patchValue({
+        ...log,
+        dateTime: log.dateTime ? log.dateTime.slice(0, 16) : '',
+        totalTime: log.totalTime / 3600
+      });
     }
   }
 
@@ -102,8 +106,10 @@ export class TourLogFormComponent implements OnInit {
   // Baut ein fertiges TourLog-Objekt aus den Formulardaten zusammen (analog zu buildTourData)
   private buildLogData(tourId: number): TourLog {
     const existing = this.logToEdit();
+    const rawForm = this.logForm.getRawValue();
     return {
-      ...this.logForm.getRawValue(),
+      ...rawForm,
+      totalTime: rawForm.totalTime * 3600,
       id: existing?.id ?? null,
       tourId: tourId
     };

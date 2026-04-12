@@ -5,7 +5,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
-import type { Tour } from '../../models/tour.model';
+import { Tour, TRANSPORT_LABELS } from '../../models/tour.model';
 
 @Component({
   selector: 'app-tour-list',
@@ -23,6 +23,8 @@ export class TourListComponent {
   readonly loading = this.tourState.loading;
   readonly loadError = this.tourState.loadError;
   readonly selectedTour = this.tourState.selectedTour;
+
+  readonly transportLabels = TRANSPORT_LABELS;
 
   // Wird beim Klick auf ein Tour-Element in der Liste aufgerufen.
   // Offenes Formular wird geschlossen, damit die Tour-Details sichtbar sind.

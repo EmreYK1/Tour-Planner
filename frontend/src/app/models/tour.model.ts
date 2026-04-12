@@ -9,8 +9,15 @@ export const TRANSPORT_TYPES = [
   'PUBLIC_TRANSPORT',
 ] as const;
 
-// Abgeleiteter Union-Typ aus dem Array – nur diese vier Strings sind gültig
 export type TransportType = (typeof TRANSPORT_TYPES)[number];
+
+// Deutsche Labels für die Enum-Werte aus dem Backend zur Anzeige in der UI
+export const TRANSPORT_LABELS: Record<TransportType, string> = {
+  WALK: 'Zu Fuß',
+  BICYCLE: 'Fahrrad',
+  CAR: 'Auto',
+  PUBLIC_TRANSPORT: 'Öffentliche Verkehrsmittel',
+};
 
 // Das zentrale Tour-Interface; id ist null solange die Tour noch nicht gespeichert wurde
 export interface Tour {
