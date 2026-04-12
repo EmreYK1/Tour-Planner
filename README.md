@@ -88,20 +88,25 @@ Tour-Planner/
 │       │   │   ├── WebCorsConfig.java        # CORS-Konfiguration
 │       │   │   └── DevDataInitializer.java   # Testdaten für dev-Profil
 │       │   ├── controller/
-│       │   │   ├── TourController.java       # REST-Endpunkte (CRUD)
+│       │   │   ├── TourController.java       # REST-Endpunkte für Touren
+│       │   │   ├── TourLogController.java    # REST-Endpunkte für Tour-Logs
 │       │   │   └── HealthController.java     # /health Endpoint
 │       │   ├── dto/
-│       │   │   └── TourDto.java              # Data Transfer Object
+│       │   │   ├── TourDto.java              # Data Transfer Object für Touren
+│       │   │   └── TourLogDto.java           # DTO für Tour-Logs
 │       │   ├── mapper/
-│       │   │   └── TourMapper.java           # Entity ↔ DTO Konvertierung
+│       │   │   ├── TourMapper.java           # Entity ↔ DTO Konvertierung (Tour)
+│       │   │   └── TourLogMapper.java        # Entity ↔ DTO Konvertierung (Log)
 │       │   ├── model/
-│       │   │   ├── Tour.java                 # JPA-Entity
-│       │   │   └── TransportType.java        # Enum (BIKE, HIKE, RUNNING, …)
+│       │   │   ├── Tour.java                 # Tour Entity (JPA)
+│       │   │   ├── TourLog.java              # Tour Log Entity (JPA)
+│       │   │   └── TransportType.java        # Enum (WALK, BICYCLE, CAR, …)
 │       │   ├── repository/
-│       │   │   └── TourRepository.java       # Spring Data JPA Repository
+│       │   │   ├── TourRepository.java       # Repository für Touren
+│       │   │   └── TourLogRepository.java    # Repository für Logs
 │       │   └── service/
-│       │       ├── TourService.java          # Service-Interface
-│       │       └── TourServiceImpl.java      # Service-Implementierung
+│       │       ├── TourService.java          # Service für Touren
+│       │       └── TourLogService.java       # Service für Logs
 │       └── resources/
 │           ├── application.properties        # Produktions-Konfiguration (PostgreSQL)
 │           ├── application-dev.properties    # Dev-Profil (H2 In-Memory)
@@ -109,35 +114,28 @@ Tour-Planner/
 │
 └── frontend/                       # Angular Single-Page-Application
     ├── Dockerfile
-    ├── nginx.conf                  # Nginx-Konfiguration (Proxy /api → Backend)
-    ├── proxy.conf.json             # Proxy für ng serve (Dev)
-    ├── angular.json
-    ├── package.json
-    ├── tsconfig.json
-    └── src/
-        ├── index.html
-        ├── main.ts                 # Angular-Bootstrapping
-        ├── styles.scss             # Globale Styles
-        └── app/
-            ├── app.component.*     # Root-Komponente (Master-Detail-Layout)
-            ├── app.config.ts       # Angular-Konfiguration (Provider, HTTP)
-            ├── app.routes.ts       # Routing-Konfiguration
-            ├── models/
-            │   └── tour.model.ts   # TypeScript-Interface für Tour & Enums
-            ├── services/
-            │   ├── tour-api.service.ts     # HTTP-Calls ans Backend
-            │   └── tour-state.service.ts   # Zentrales State-Management (MVVM ViewModel)
-            └── components/
-                ├── tour-list/              # Linke Spalte: Tourliste
-                │   ├── tour-list.component.ts
-                │   ├── tour-list.component.html
-                │   └── tour-list.component.scss
-                ├── tour-details/           # Rechte Spalte: Detailansicht
-                │   ├── tour-details.component.ts
-                │   ├── tour-details.component.html
-                │   └── tour-details.component.scss
-                └── tour-form/              # Formular: Tour erstellen & bearbeiten
-                    ├── tour-form.component.ts
-                    ├── tour-form.component.html
-                    └── tour-form.component.scss
+    ├── nginx.conf                  # Nginx-Konfiguration
+    └── src/app/
+        ├── app.component.*         # Root-Layout & Shell
+        ├── app.routes.ts           # Routing-Konfiguration
+        ├── models/
+        │   ├── tour.model.ts       # Interface & Enums für Touren
+        │   └── tour-log.model.ts   # Interface für Tour-Logs
+        ├── services/
+        │   ├── tour-api.service.ts         # API-Aufrufe (Tours)
+        │   ├── tour-log-api.service.ts     # API-Aufrufe (Logs)
+        │   ├── tour-state.service.ts       # State Management (Tours)
+        │   ├── tour-log-state.service.ts   # State Management (Logs)
+        │   ├── tour-ui-state.service.ts    # UI-Logik für Tour-Formular
+        │   └── tour-log-ui-state.service.ts # UI-Logik für Log-Formular
+        ├── shared/
+        │   └── button/             # Wiederverwendbare Button-Komponente
+        ├── components/
+        │   ├── tour-list/          # Linke Spalte: Liste aller Touren
+        │   ├── tour-details/       # Rechte Spalte: Hauptansicht & Tour-Details
+        │   ├── tour-form/          # Formular für Tour Erstellen/Bearbeiten
+        │   ├── tour-log-list/      # Liste der Logs unter den Tour-Details
+        │   └── tour-log-form/      # Formular für Log Erstellen/Bearbeiten
+        └── utils/
+            └── format-duration.util.ts # Utility für Zeit-Formatierung
 ```
