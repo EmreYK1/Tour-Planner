@@ -16,20 +16,30 @@
         @for (log of logs(); track log.id) {
           <div class="log-card">
             <div class="log-header">
-              <span class="log-date">{{ log.dateTime | date:'dd.MM.yyyy HH:mm' }}</span>
+              <span class="log-date">{{ log.dateTime | date:'dd.MM.yyyy HH:mm' }} Uhr</span>
               <span class="log-rating">Rating: {{ log.rating }}/5</span>
             </div>
             <div class="log-body">
-              <p class="log-comment">{{ log.comment }}</p>
-              <div class="log-stats">
-                <span class="stat"><strong>Distanz:</strong> {{ log.totalDistance }} km</span>
-                <span class="stat"><strong>Dauer:</strong> {{ formatDuration(log.totalTime) }}</span>
-                <span class="stat"><strong>Schwierigkeit:</strong> {{ log.difficulty }}/5</span>
+              <p class="log-comment">{{ log.comment || 'Keine Notizen vorhanden.' }}</p>
+              
+              <div class="log-stats-row">
+                <div class="log-stat-item" title="Distanz">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                  <span>{{ log.totalDistance }} km</span>
+                </div>
+                <div class="log-stat-item" title="Dauer">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>{{ formatDuration(log.totalTime) }}</span>
+                </div>
+                <div class="log-stat-item" title="Schwierigkeit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                  <span>Level {{ log.difficulty }}</span>
+                </div>
               </div>
             </div>
             
             <div class="log-footer">
-              <app-button variant="edit" (click)="openEditForm(log)">Bearbeiten</app-button>
+              <app-button variant="ghost" (click)="openEditForm(log)">Bearbeiten</app-button>
               <app-button variant="danger" (click)="deleteLog(log)">Löschen</app-button>
             </div>
           </div>
