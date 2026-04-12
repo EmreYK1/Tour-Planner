@@ -28,6 +28,7 @@ public class TourLogServiceImpl implements TourLogService {
 
     @Override
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public List<TourLogDto> findByTourId(Long tourId) {
         if (!tourRepository.existsById(tourId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -37,6 +38,7 @@ public class TourLogServiceImpl implements TourLogService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public TourLogDto create(Long tourId, TourLogDto dto) {
         Tour tour = tourRepository.findById(tourId)  
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -47,6 +49,7 @@ public class TourLogServiceImpl implements TourLogService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public TourLogDto update(Long tourId, Long logId, TourLogDto dto) {
         TourLog entity = tourLogRepository.findById(logId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -60,6 +63,7 @@ public class TourLogServiceImpl implements TourLogService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public void delete(Long tourId, Long logId) {
         TourLog entity = tourLogRepository.findById(logId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
