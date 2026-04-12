@@ -1,7 +1,7 @@
 <div class="tour-log-list">
   <div class="list-header">
     <h3>Tour Logs</h3>
-    <button class="btn-add-log" (click)="openCreateForm()">+ Neuer Log</button>
+    <app-button variant="primary" (click)="openCreateForm()">+ Neuer Log</app-button>
   </div>
 
   @if (loading()) {
@@ -24,13 +24,13 @@
               <div class="log-stats">
                 <span class="stat"><strong>Distanz:</strong> {{ log.totalDistance }} km</span>
                 <span class="stat"><strong>Dauer:</strong> {{ formatDuration(log.totalTime) }}</span>
-                <span class="stat"><strong>Schwierigkeit:</strong> {{ log.difficulty }}/10</span>
+                <span class="stat"><strong>Schwierigkeit:</strong> {{ log.difficulty }}/5</span>
               </div>
             </div>
             
             <div class="log-footer">
-              <button class="btn-edit" (click)="openEditForm(log)">Bearbeiten</button>
-              <button class="btn-delete" (click)="deleteLog(log)">Löschen</button>
+              <app-button variant="edit" (click)="openEditForm(log)">Bearbeiten</app-button>
+              <app-button variant="danger" (click)="deleteLog(log)">Löschen</app-button>
             </div>
           </div>
         }

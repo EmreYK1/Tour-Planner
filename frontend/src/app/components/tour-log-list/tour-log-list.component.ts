@@ -6,11 +6,12 @@ import { TourLogUiStateService } from '../../services/tour-log-ui-state.service'
 import { formatDuration } from '../../utils/format-duration.util';
 import { TourStateService } from '../../services/tour-state.service';
 import type { TourLog } from '../../models/tour-log.model';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-tour-log-list',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, ButtonComponent],
   templateUrl: './tour-log-list.component.html',
   styleUrl: './tour-log-list.component.scss',
 })

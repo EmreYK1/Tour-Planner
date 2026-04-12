@@ -7,11 +7,12 @@ import { TourApiService } from '../../services/tour-api.service';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
 import { TRANSPORT_TYPES, type Tour } from '../../models/tour.model';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-tour-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './tour-form.component.html',
   styleUrl: './tour-form.component.scss'
 })
@@ -45,7 +46,8 @@ export class TourFormComponent implements OnInit {
     to: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     transportType: new FormControl<typeof TRANSPORT_TYPES[number]>('BICYCLE', { nonNullable: true, validators: [Validators.required] }),
     distance: new FormControl(0, { nonNullable: true, validators: [Validators.min(0)] }),
-    estimatedTime: new FormControl(0, { nonNullable: true, validators: [Validators.min(0)] })
+    estimatedTime: new FormControl(0, { nonNullable: true, validators: [Validators.min(0)] }),
+    image: new FormControl('', { nonNullable: true })
   });
 
   // Wenn eine Tour bearbeitet wird, Felder mit deren Werten vorausfüllen
@@ -91,8 +93,7 @@ export class TourFormComponent implements OnInit {
   private buildTourData(existing: Tour | null): Tour {
     return {
       ...this.tourForm.getRawValue(),
-      id: existing?.id ?? null,
-      image: existing?.image ?? ''
+      id: existing?.id ?? null
     };
   }
 

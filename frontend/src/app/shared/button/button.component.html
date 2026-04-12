@@ -1,0 +1,6 @@
+<button
+  [type]="type"
+  [attr.disabled]="disabled ? true : null"
+  class="btn btn--{{ variant }}">
+  <ng-content />
+</button>

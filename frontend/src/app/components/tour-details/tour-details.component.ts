@@ -9,10 +9,11 @@ import { TourUiStateService } from '../../services/tour-ui-state.service';
 import { TourLogStateService } from '../../services/tour-log-state.service';
 import { TourLogListComponent } from '../tour-log-list/tour-log-list.component';
 import { formatDuration } from '../../utils/format-duration.util';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-tour-details',
-  imports: [TourLogListComponent],
+  imports: [TourLogListComponent, ButtonComponent],
   templateUrl: './tour-details.component.html',
   styleUrl: './tour-details.component.scss'
 })

@@ -1,0 +1,107 @@
+// frontend/src/app/shared/button/button.component.scss
+// Zentrale Button-Styles – alle Varianten an einem Ort.
+// Eingebunden per app-button in Tour-Form, Log-Form, Log-List, Tour-Details.
+
+:host {
+  display: inline-block;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border: 1.5px solid transparent;
+  border-radius: 9px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease,
+              border-color 0.18s ease, transform 0.1s ease,
+              box-shadow 0.18s ease, opacity 0.18s ease;
+
+  &:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  // ── Varianten ────────────────────────────────────────────
+
+  // Blau gefüllt – Hauptaktion (Speichern, Erstellen)
+  &--primary {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #3b82f6;
+
+    &:hover:not(:disabled) {
+      background: #2563eb;
+      border-color: #2563eb;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+      transform: translateY(-1px);
+    }
+  }
+
+  // Transparent mit Rand – Nebenaktionen (Abbrechen)
+  &--secondary {
+    background: transparent;
+    color: #555;
+    border-color: #d1d5db;
+
+    &:hover:not(:disabled) {
+      background: #f4f6f8;
+      border-color: #9ca3af;
+    }
+  }
+
+  // Rot – destruktive Aktionen (Löschen)
+  &--danger {
+    background: transparent;
+    color: #dc2626;
+    border-color: rgba(220, 38, 38, 0.35);
+
+    &:hover:not(:disabled) {
+      background: #dc2626;
+      color: #fff;
+      border-color: #dc2626;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+      transform: translateY(-1px);
+    }
+  }
+
+  // Soft-Blau – nicht-destruktive Sekundäraktion (Bearbeiten)
+  &--edit {
+    background: #e8f0fe;
+    color: #2563eb;
+    border-color: transparent;
+
+    &:hover:not(:disabled) {
+      background: #d1e3ff;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Ghost – icon-only oder dezente Aktion
+  &--ghost {
+    background: transparent;
+    color: #6b7280;
+    border-color: transparent;
+
+    &:hover:not(:disabled) {
+      background: #f3f4f6;
+      color: #374151;
+    }
+  }
+}

@@ -9,11 +9,12 @@ import { TourLogStateService } from '../../services/tour-log-state.service';
 import { TourLogUiStateService } from '../../services/tour-log-ui-state.service';
 import { TourStateService } from '../../services/tour-state.service';
 import type { TourLog } from '../../models/tour-log.model';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-tour-log-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './tour-log-form.component.html',
   styleUrl: './tour-log-form.component.scss'
 })

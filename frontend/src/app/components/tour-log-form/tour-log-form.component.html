@@ -145,10 +145,10 @@
 
     <!-- Buttons -->
     <div class="form-actions">
-      <button type="button" class="btn-secondary" (click)="onCancel()">Abbrechen</button>
-      <button type="submit" class="btn-primary" [disabled]="logForm.invalid">
+      <app-button type="button" variant="secondary" (click)="onCancel()">Abbrechen</app-button>
+      <app-button type="submit" variant="primary" [disabled]="logForm.invalid">
         {{ logToEdit() ? 'Änderungen speichern' : 'Log erstellen' }}
-      </button>
+      </app-button>
     </div>
 
   </form>
