@@ -13,7 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     // Macht HttpClient überall per inject() verfügbar
     provideHttpClient(),
-    // Registriert den Router mit unseren Routen
     provideRouter(routes)
   ]
 };

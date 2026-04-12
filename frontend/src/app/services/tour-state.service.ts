@@ -49,7 +49,7 @@ export class TourStateService {
     });
   }
 
-  // Setzt die aktuell angezeigte Tour (null = nichts ausgewählt)
+  // Setzt die aktuell angezeigte Tour 
   selectTour(tour: Tour | null): void {
     this._selectedTour.set(tour);
   }
