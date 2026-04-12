@@ -1,0 +1,220 @@
+/* frontend/src/app/components/tour-log-form/tour-log-form.component.scss */
+/* Exakt gleicher Stil wie tour-form.component.scss – gleiche CSS-Variablen, gleiche Struktur */
+
+:host {
+  --border-color: rgba(16, 185, 129, 0.2);
+  --input-bg: rgba(255, 255, 255, 0.7);
+  --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+}
+
+.form-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  .icon-circle {
+    background: linear-gradient(135deg, var(--accent), var(--adventure-orange));
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    flex-shrink: 0;
+  }
+
+  .header-text {
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.025em;
+    }
+
+    p {
+      margin: 0.25rem 0 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.log-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+
+    svg {
+      opacity: 0.8;
+    }
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  input, textarea {
+    padding: 0.875rem 1rem;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    width: 100%;
+
+    &::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px var(--accent-transparent);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+
+  button {
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+
+    &:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.2);
+      color: var(--text-primary);
+    }
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsivität */
+@media (max-width: 640px) {
+  .form-card {
+    padding: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

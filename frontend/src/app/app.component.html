@@ -1,4 +1,4 @@
-﻿<!-- frontend/src/app/app.component.html -->
+<!-- frontend/src/app/app.component.html -->
 <!-- Template der Root-Komponente: Layout mit Sidebar. -->
 <div class="app-layout">
   <app-tour-list></app-tour-list>
@@ -7,6 +7,10 @@
     @if (showForm()) {
       <div class="form-overlay">
         <app-tour-form></app-tour-form>
+      </div>
+    } @else if (showLogForm()) {
+      <div class="form-overlay">
+        <app-tour-log-form></app-tour-log-form>
       </div>
     } @else {
       <app-tour-details></app-tour-details>

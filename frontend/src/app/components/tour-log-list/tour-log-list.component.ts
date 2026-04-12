@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TourLogStateService } from '../../services/tour-log-state.service';
 import { TourLogApiService } from '../../services/tour-log-api.service';
+import { TourLogUiStateService } from '../../services/tour-log-ui-state.service';
 import { formatDuration } from '../../utils/format-duration.util';
 import { TourStateService } from '../../services/tour-state.service';
 import type { TourLog } from '../../models/tour-log.model';
@@ -16,6 +17,7 @@ import type { TourLog } from '../../models/tour-log.model';
 export class TourLogListComponent {
   private readonly tourLogState = inject(TourLogStateService);
   private readonly tourLogApi = inject(TourLogApiService);
+  private readonly tourLogUiState = inject(TourLogUiStateService);
   private readonly tourState = inject(TourStateService);
 
   readonly logs = this.tourLogState.logs;
@@ -23,6 +25,10 @@ export class TourLogListComponent {
   readonly loadError = this.tourLogState.loadError;
 
   readonly formatDuration = formatDuration;
+
+  openCreateForm(): void {
+    this.tourLogUiState.openCreateLogForm();
+  }
 
   deleteLog(log: TourLog): void {
     const tour = this.tourState.selectedTour();

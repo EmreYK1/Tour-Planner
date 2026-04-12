@@ -1,10 +1,37 @@
 .tour-log-list {
   margin-top: 2rem;
 
-  h3 {
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1rem;
-    color: var(--text-color, #333);
-    font-size: 1.25rem;
+
+    h3 {
+      margin: 0;
+      color: var(--text-color, #333);
+      font-size: 1.25rem;
+    }
+  }
+
+  .btn-add-log {
+    padding: 0.45rem 1rem;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+
+    &:hover {
+      background: #2563eb;
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
   }
 
   .loading-message, .empty-message {

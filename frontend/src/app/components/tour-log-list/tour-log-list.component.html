@@ -1,5 +1,8 @@
 <div class="tour-log-list">
-  <h3>Tour Logs</h3>
+  <div class="list-header">
+    <h3>Tour Logs</h3>
+    <button class="btn-add-log" (click)="openCreateForm()">+ Neuer Log</button>
+  </div>
 
   @if (loading()) {
     <p class="loading-message">Lade Logs...</p>
