@@ -72,16 +72,25 @@ export class TourLogFormComponent implements OnInit {
     if (!tourId) return;
 
     const logData = this.buildLogData(tourId);
+    const existing = this.logToEdit();
 
-    // Create-Modus (T3.3.1): Immer POST, da logToEdit null ist
-    this.logApi.create(tourId, logData).subscribe({
-      next: (createdLog) => {
-        // Den neuen Log sofort im State (und damit in der Liste) anzeigen
-        this.logState.addLog(createdLog);
-        this.handleSuccess();
-      },
-      error: (err) => this.handleError('erstellen', err)
-    });
+    if (existing?.id) {
+      this.logApi.update(tourId, existing.id, logData).subscribe({
+        next: (updatedLog) => {
+          this.logState.updateLogInState(updatedLog);
+          this.handleSuccess();
+        },
+        error: (err) => this.handleError('aktualisieren', err)
+      });
+    } else {
+      this.logApi.create(tourId, logData).subscribe({
+        next: (createdLog) => {
+          this.logState.addLog(createdLog);
+          this.handleSuccess();
+        },
+        error: (err) => this.handleError('erstellen', err)
+      });
+    }
   }
 
   // Schließt das Formular ohne zu speichern

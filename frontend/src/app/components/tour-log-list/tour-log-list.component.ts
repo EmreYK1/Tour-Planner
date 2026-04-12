@@ -30,6 +30,10 @@ export class TourLogListComponent {
     this.tourLogUiState.openCreateLogForm();
   }
 
+  openEditForm(log: TourLog): void {
+    this.tourLogUiState.openEditLogForm(log);
+  }
+
   deleteLog(log: TourLog): void {
     const tour = this.tourState.selectedTour();
     if (!tour?.id || !log.id) return;
