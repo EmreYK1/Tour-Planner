@@ -11,6 +11,7 @@ Die Idee: eine Web-App, mit der man Outdoor-Touren planen und nachträglich doku
 ## Was aktuell funktioniert
 
 - Touren **anlegen, bearbeiten und löschen** (vollständige CRUD-API im Backend)
+- Tour Logs (Logbuch für absolvierte Touren)
 - **Detailansicht** einer Tour mit allen Attributen (Name, Beschreibung, Start/Ziel, Distanz, Dauer, Transportmittel)
 - **Master-Detail-Layout** – Tourliste links, Details rechts
 - **Formular** mit Validierung – funktioniert für Erstellen und Bearbeiten (DRY, eine Komponente für beides)
@@ -19,7 +20,6 @@ Die Idee: eine Web-App, mit der man Outdoor-Touren planen und nachträglich doku
 
 ## Was noch fehlt / geplant ist
 
-- Tour Logs (Logbuch für absolvierte Touren)
 - Kartenintegration mit Leaflet
 - Automatische Routen-Berechnung via OpenRouteService
 - Volltextsuche
