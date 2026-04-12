@@ -27,10 +27,13 @@
                 <span class="stat"><strong>Schwierigkeit:</strong> {{ log.difficulty }}/10</span>
               </div>
             </div>
-            <!-- CRUD Buttons werden in T3.2.5 hinzugefügt -->
+            
+             <div class="log-footer">
+              <button class="btn-delete" (click)="deleteLog(log)">Löschen</button>
+            </div>
           </div>
         }
-      </div>
+      </div> 
     }
   }
 </div>
