@@ -17,5 +17,7 @@ public interface TourService {
 
     TourDto update(long id, TourDto dto);
 
+    TourDto updateImage(long id, String imageUrl);
+
     void delete(long id);
 }

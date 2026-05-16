@@ -59,6 +59,16 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
+    public TourDto updateImage(long id, String imageUrl) {
+        Tour entity = tourRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        entity.setImage(imageUrl);
+        Tour saved = tourRepository.save(entity);
+        return tourMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
     public void delete(long id) {
         if (!tourRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
