@@ -30,6 +30,9 @@ export class TourFormComponent implements OnInit {
   // Deutsche Labels für die Enum-Werte aus dem Backend
   readonly transportLabels = TRANSPORT_LABELS;
 
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+
   // Das Reactive Form mit allen Feldern und Validierungsregeln
   tourForm = new FormGroup({
     name: new FormControl('', {
@@ -56,29 +59,62 @@ export class TourFormComponent implements OnInit {
     }
   }
 
+  private uploadIfSelected(tour: Tour, onDone: (t: Tour) => void): void {
+    if (!this.selectedFile || !tour.id) { onDone(tour); return; }
+
+    this.tourApi.uploadImage(tour.id, this.selectedFile).subscribe({
+      next: (imageUrl) => 
+        onDone({ ...tour, image: imageUrl }),
+      error: (err) => {
+        alert('Bild konnte nicht hochgeladen werden. Nur JPEG, PNG und WebP sind erlaubt.');
+    }
+    });
+  }
+
+  clearFile(fileInput: HTMLInputElement): void {
+    fileInput.value = '';
+    this.selectedFile = null;
+    this.previewUrl = null;
+  }
+
   // Entscheidet anhand von tourToEdit ob wir erstellen oder aktualisieren
   onSubmit(): void {
     if (!this.tourForm.valid) return;
+
+        // Dateityp vorab prüfen
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (this.selectedFile && !allowed.includes(this.selectedFile.type)) {
+            alert('Ungültiger Dateityp. Nur JPEG, PNG und WebP sind erlaubt.');
+            return;
+        }
 
     const tour = this.tourUiState.tourToEdit();
     const tourData = this.buildTourData(tour);
 
     if (tour?.id) {
       this.tourApi.update(tour.id, tourData).subscribe({
-        next: (updatedTour) => {
-          this.tourState.updateTourInState(updatedTour);
-          this.handleSuccess();
-        },
-        error: (err) => this.handleError('aktualisieren', err)
+          next: (updatedTour) => {
+              this.uploadIfSelected(updatedTour, (t) => this.tourState.updateTourInState(t));
+              this.handleSuccess();
+          },
+          error: (err) => this.handleError('aktualisieren', err)
       });
-    } else {
+  } else {
       this.tourApi.create(tourData).subscribe({
-        next: (createdTour) => {
-          this.tourState.addTour(createdTour);
-          this.handleSuccess();
-        },
-        error: (err) => this.handleError('erstellen', err)
+          next: (createdTour) => {
+              this.uploadIfSelected(createdTour, (t) => this.tourState.addTour(t));
+              this.handleSuccess();
+          },
+          error: (err) => this.handleError('erstellen', err)
       });
+  }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedFile = input.files[0];
+      this.previewUrl = URL.createObjectURL(this.selectedFile);
     }
   }
 

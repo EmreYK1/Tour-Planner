@@ -113,10 +113,14 @@
       </div>
 
       <div class="form-group">
-        <label for="image">Bild-URL</label>
+        <label for="image">Bild hochladen</label>
         <div class="input-wrapper">
-          <input id="image" type="text" formControlName="image" placeholder="https://beispiel.at/bild.jpg">
+          <input #fileInput id="image" type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)">
         </div>
+        @if (previewUrl) {
+          <img [src]="previewUrl" alt="Vorschau" style="max-height: 150px; margin-top: 8px;">
+          <app-button type="button" variant="secondary" (click)="clearFile(fileInput)">Bild entfernen</app-button>
+        }
       </div>
     </section>
 

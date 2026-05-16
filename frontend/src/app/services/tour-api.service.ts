@@ -35,6 +35,11 @@ export class TourApiService {
     return this.http.put<Tour>(`${this.resourceUrl}/${id}`, tour);
   }
 
+  uploadImage(id: number, file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.resourceUrl}/${id}/image`, formData, { responseType: 'text' });
+}
   // Löscht eine Tour anhand ihrer ID
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
