@@ -7,3 +7,4 @@ target/
 .project
 .classpath
 .settings/
+application-local.properties
