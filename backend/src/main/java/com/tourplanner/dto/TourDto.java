@@ -19,6 +19,11 @@ public record TourDto(
         @NotNull TransportType transportType,
         @DecimalMin("0.0") double distance,
         @Min(0) long estimatedTime,
-        @Size(max = 2000) String image
+        @Size(max = 2000) String image,
+        String routeGeometry,
+        Double fromLon,
+        Double fromLat,
+        Double toLon,
+        Double toLat
 ) {
 }

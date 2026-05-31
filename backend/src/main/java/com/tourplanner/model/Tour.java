@@ -51,4 +51,7 @@ public class Tour {
 
     @Column(length = 2000)
     private String image;
+
+    @Column(name = "route_geometry", columnDefinition = "TEXT")
+    private String routeGeometry;
 }

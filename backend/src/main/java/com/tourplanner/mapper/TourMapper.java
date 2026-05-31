@@ -19,7 +19,9 @@ public class TourMapper {
                 entity.getTransportType(),
                 entity.getDistance(),
                 entity.getEstimatedTime(),
-                nullToEmpty(entity.getImage())
+                nullToEmpty(entity.getImage()),
+                entity.getRouteGeometry(),
+                null, null, null, null
         );
     }
 

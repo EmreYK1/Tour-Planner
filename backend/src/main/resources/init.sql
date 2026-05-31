@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS tour_logs (
     rating INT NOT NULL
 );
 
+ALTER TABLE tours ADD COLUMN IF NOT EXISTS route_geometry TEXT;
+
 -- Demo-Tour 
 INSERT INTO tours (name, description, from_place, to_place, transport_type, distance, estimated_time_seconds, image)
 SELECT 'Wienerwald Tour',
