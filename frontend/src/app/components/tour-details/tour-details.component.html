@@ -102,7 +102,7 @@
   }
 
   <!-- KARTENANSICHT -->
-  <app-route-map />
+  <app-route-map [geometry]="selectedTour()?.routeGeometry ?? null"/>
 
   <!-- TOUR LOG LISTE -->
   <app-tour-log-list />
