@@ -1,6 +1,7 @@
 package com.tourplanner.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tourplanner.dto.GeocodingResultDto;
 import com.tourplanner.exception.OrsApiException;
 import com.tourplanner.model.TransportType;
 import java.nio.charset.StandardCharsets;
@@ -97,4 +98,41 @@ public class OrsClient {
             return new OrsDirectionsRequest(coordinates, true, "geojson", false);
         }
     }
+
+    /**
+     * Löst eine Freitextadresse in geografische Koordinaten auf (Geocoding).
+     * Verwendet den ORS Pelias-Endpoint; gibt den ersten Treffer zurück.
+     *
+     * @param address Freitextadresse, z.B. "Wien" oder "Stephansplatz, Wien"
+     * @return GeocodingResultDto mit lon/lat des ersten Treffers
+     * @throws OrsApiException wenn kein Ergebnis gefunden wurde oder der API-Key fehlt
+     */
+    public GeocodingResultDto fetchGeocode(String address) {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new OrsApiException("ORS API key is not configured (ors.api.key)");
+        }
+
+        OrsGeocodeResponse response = restClient.get()
+                .uri("/geocode/search?api_key={key}&text={text}&size=1", apiKey, address)
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), (req, res) -> {
+                    String body = new String(res.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                    throw new OrsApiException(
+                            "ORS Geocoding error " + res.getStatusCode().value() + ": " + body);
+                })
+                .body(OrsGeocodeResponse.class);
+
+        if (response == null || response.features() == null || response.features().isEmpty()) {
+            throw new OrsApiException("No geocoding result found for: " + address);
+        }
+
+        List<Double> coords = response.features().get(0).geometry().coordinates();
+        // ORS liefert Koordinaten als [lon, lat]
+        return new GeocodingResultDto(coords.get(0), coords.get(1));
+    }
+
+    // Interne Records zum Deserialisieren der ORS Geocoding-Antwort (GeoJSON FeatureCollection)
+    private record OrsGeocodeResponse(List<OrsGeocodeFeature> features) {}
+    private record OrsGeocodeFeature(OrsGeocodeGeometry geometry) {}
+    private record OrsGeocodeGeometry(List<Double> coordinates) {}
 }
