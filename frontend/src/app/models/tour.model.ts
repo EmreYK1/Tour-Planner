@@ -31,6 +31,10 @@ export interface Tour {
   estimatedTime: number;
   image: string;
   routeGeometry?: string | null;
+  fromLon?:number | null;
+  fromLat?:number | null;
+  toLon?: number | null;
+  toLat?: number | null;
 }
 
 // Erzeugt eine leere Tour als Startwert – nützlich fürs Formular-Reset

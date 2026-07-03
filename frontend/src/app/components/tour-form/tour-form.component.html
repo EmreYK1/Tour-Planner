@@ -124,10 +124,15 @@
       </div>
     </section>
 
+    @if (geocodingError) {
+      <p class="error-text">{{ geocodingError }}</p>
+    }
     <!-- Buttons -->
     <div class="form-actions">
       <app-button type="button" variant="secondary" (click)="onCancel()">Abbrechen</app-button>
-      <app-button type="submit" variant="primary" [disabled]="tourForm.invalid">Tour speichern</app-button>
+      <app-button type="submit" variant="primary" [disabled]="tourForm.invalid || isGeocoding">
+        {{ isGeocoding ? 'Wird berechnet...' : 'Tour speichern' }}
+      </app-button>
     </div>
 
   </form>
