@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,12 +20,19 @@ public class DevDataInitializer implements ApplicationRunner {
 
     private static final String TEST_USER_EMAIL = "test@example.com";
 
+    private static final String TEST_USER_PASSWORD = "secret123";
+
     private final TourRepository tourRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DevDataInitializer(TourRepository tourRepository, UserRepository userRepository) {
+    public DevDataInitializer(
+            TourRepository tourRepository,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
         this.tourRepository = tourRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -57,8 +65,7 @@ public class DevDataInitializer implements ApplicationRunner {
                         () -> {
                             User user = new User();
                             user.setEmail(TEST_USER_EMAIL);
-                            // Platzhalter bis Auth-Task (Klartext: secret123)
-                            user.setPasswordHash("secret123");
+                            user.setPasswordHash(passwordEncoder.encode(TEST_USER_PASSWORD));
                             user.setCreatedAt(LocalDateTime.now());
                             return userRepository.save(user);
                         });
