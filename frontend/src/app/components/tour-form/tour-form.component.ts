@@ -8,6 +8,8 @@ import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
 import { TRANSPORT_TYPES, TRANSPORT_LABELS, type Tour } from '../../models/tour.model';
 import { ButtonComponent } from '../../shared/button/button.component';
+import { GeocodingService, GeocodingResult } from '../../services/geocoding.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-tour-form',
@@ -20,6 +22,7 @@ export class TourFormComponent implements OnInit {
   private readonly tourApi = inject(TourApiService);
   private readonly tourState = inject(TourStateService);
   private readonly tourUiState = inject(TourUiStateService);
+  private readonly geocodingService = inject(GeocodingService);
 
   // Ob wir gerade eine bestehende Tour bearbeiten oder eine neue anlegen (null = neu)
   readonly tourToEdit = this.tourUiState.tourToEdit;
@@ -32,6 +35,8 @@ export class TourFormComponent implements OnInit {
 
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  isGeocoding = false;
+  geocodingError: string | null = null;
 
   // Das Reactive Form mit allen Feldern und Validierungsregeln
   tourForm = new FormGroup({
@@ -88,26 +93,42 @@ export class TourFormComponent implements OnInit {
             return;
         }
 
-    const tour = this.tourUiState.tourToEdit();
-    const tourData = this.buildTourData(tour);
+    this.isGeocoding = true;  
+    this.geocodingError = null;
 
-    if (tour?.id) {
-      this.tourApi.update(tour.id, tourData).subscribe({
-          next: (updatedTour) => {
+    forkJoin({
+      from: this.geocodingService.fetchGeocode(this.tourForm.getRawValue().from),
+      to:   this.geocodingService.fetchGeocode(this.tourForm.getRawValue().to),
+    }).subscribe({
+      next: ({ from, to }) => {
+        this.isGeocoding = false;
+        const tour = this.tourUiState.tourToEdit();
+        const tourData = this.buildTourData(tour, from, to);
+
+        if (tour?.id) {
+          this.tourApi.update(tour.id, tourData).subscribe({
+            next: (updatedTour) => {
               this.uploadIfSelected(updatedTour, (t) => this.tourState.updateTourInState(t));
               this.handleSuccess();
-          },
-          error: (err) => this.handleError('aktualisieren', err)
-      });
-  } else {
-      this.tourApi.create(tourData).subscribe({
-          next: (createdTour) => {
+            },
+            error: (err) => this.handleError('aktualisieren', err)
+          });
+        } else {
+          this.tourApi.create(tourData).subscribe({
+            next: (createdTour) => {
               this.uploadIfSelected(createdTour, (t) => this.tourState.addTour(t));
               this.handleSuccess();
-          },
-          error: (err) => this.handleError('erstellen', err)
-      });
-  }
+            },
+            error: (err) => this.handleError('erstellen', err)
+          });
+        }
+      },
+      error: () => {
+        // Geocoding fehlgeschlagen – Adresse wurde von ORS nicht gefunden
+        this.isGeocoding = false;
+        this.geocodingError = 'Adresse nicht gefunden. Bitte überprüfe Start und Ziel.';
+      }
+    });
   }
 
   onFileSelected(event: Event): void {
@@ -123,13 +144,17 @@ export class TourFormComponent implements OnInit {
     this.tourUiState.closeForm();
   }
 
-  // Baut ein fertiges Tour-Objekt aus den Formulardaten und der bestehenden Tour zusammen
-  private buildTourData(existing: Tour | null): Tour {
+  // Baut ein fertiges Tour-Objekt aus den Formulardaten und den Geocoding-Koordinaten zusammen
+  private buildTourData(existing: Tour | null, fromCoords?: GeocodingResult, toCoords?: GeocodingResult): Tour {
     const rawForm = this.tourForm.getRawValue();
     return {
       ...rawForm,
       estimatedTime: rawForm.estimatedTime * 3600,
-      id: existing?.id ?? null
+      id: existing?.id ?? null,
+      fromLon: fromCoords?.lon ?? null,
+      fromLat: fromCoords?.lat ?? null,
+      toLon:   toCoords?.lon ?? null,
+      toLat:   toCoords?.lat ?? null,
     };
   }
 
@@ -144,4 +169,5 @@ export class TourFormComponent implements OnInit {
     console.error(`Fehler beim ${action} der Tour:`, error);
     alert('Die Tour konnte leider nicht gespeichert werden.');
   }
+
 }

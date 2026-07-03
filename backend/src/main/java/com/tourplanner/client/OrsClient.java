@@ -43,8 +43,9 @@ public class OrsClient {
         String profile = toOrsProfile(transportType);
         OrsDirectionsRequest requestBody = OrsDirectionsRequest.forRoute(coordinates);
 
-        OrsRouteResponse response = restClient.post()
-                .uri("/v2/directions/{profile}", profile)
+        // /geojson Endpoint liefert in ORS v9 direkte GeoJSON-Koordinaten ohne Encoding
+        OrsGeoJsonResponse response = restClient.post()
+                .uri("/v2/directions/{profile}/geojson", profile)
                 .header("Authorization", apiKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(requestBody)
@@ -54,28 +55,28 @@ public class OrsClient {
                     throw new OrsApiException(
                             "OpenRouteService error " + res.getStatusCode().value() + ": " + body);
                 })
-                .body(OrsRouteResponse.class);
+                .body(OrsGeoJsonResponse.class);
 
         return toResult(response);
     }
 
-    private static OrsRouteResult toResult(OrsRouteResponse response) {
-        if (response == null || response.routes() == null || response.routes().isEmpty()) {
-            throw new OrsApiException("ORS response contains no routes");
+    private static OrsRouteResult toResult(OrsGeoJsonResponse response) {
+        if (response == null || response.features() == null || response.features().isEmpty()) {
+            throw new OrsApiException("ORS response contains no features");
         }
 
-        OrsRouteResponse.Route route = response.routes().get(0);
-        if (route.summary() == null) {
+        OrsGeoJsonResponse.Feature feature = response.features().get(0);
+        if (feature.properties() == null || feature.properties().summary() == null) {
             throw new OrsApiException("ORS response missing summary");
         }
-        if (route.geometry() == null) {
+        if (feature.geometry() == null) {
             throw new OrsApiException("ORS response missing geometry");
         }
 
         return new OrsRouteResult(
-                route.summary().distance(),
-                route.summary().duration(),
-                route.geometry());
+                feature.properties().summary().distance(),
+                feature.properties().summary().duration(),
+                feature.geometry());
     }
 
     private static String toOrsProfile(TransportType transportType) {
@@ -88,15 +89,22 @@ public class OrsClient {
         };
     }
 
+    // geometry_format wurde in ORS API v9 entfernt – /geojson Endpoint liefert direkte Koordinaten
     private record OrsDirectionsRequest(
             List<List<Double>> coordinates,
             boolean geometry,
-            @JsonProperty("geometry_format") String geometryFormat,
             boolean instructions) {
 
         static OrsDirectionsRequest forRoute(List<List<Double>> coordinates) {
-            return new OrsDirectionsRequest(coordinates, true, "geojson", false);
+            return new OrsDirectionsRequest(coordinates, true, false);
         }
+    }
+
+    // GeoJSON FeatureCollection Response des /geojson Endpoints (ORS v9+)
+    private record OrsGeoJsonResponse(List<Feature> features) {
+        private record Feature(Properties properties, OrsRouteResponse.Route.Geometry geometry) {}
+        private record Properties(Summary summary) {}
+        private record Summary(double distance, double duration) {}
     }
 
     /**
