@@ -23,7 +23,15 @@ CREATE TABLE IF NOT EXISTS tour_logs (
     rating INT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);
+
 ALTER TABLE tours ADD COLUMN IF NOT EXISTS route_geometry TEXT;
+ALTER TABLE tours ADD COLUMN IF NOT EXISTS owner_id BIGINT REFERENCES users(id);
 
 -- Demo-Tour 
 INSERT INTO tours (name, description, from_place, to_place, transport_type, distance, estimated_time_seconds, image)
