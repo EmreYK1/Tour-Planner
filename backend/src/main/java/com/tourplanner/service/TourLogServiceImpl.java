@@ -4,9 +4,12 @@ import com.tourplanner.model.Tour;
 import com.tourplanner.dto.TourLogDto;
 import com.tourplanner.mapper.TourLogMapper;
 import com.tourplanner.model.TourLog;
+import com.tourplanner.model.User;
 import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
+import com.tourplanner.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,18 +22,29 @@ public class TourLogServiceImpl implements TourLogService {
     private final TourLogRepository tourLogRepository;
     private final TourRepository tourRepository;
     private final TourLogMapper tourLogMapper;
+    private final UserRepository userRepository;
 
-    public TourLogServiceImpl(TourLogRepository tourLogRepository, TourRepository tourRepository, TourLogMapper tourLogMapper) {
+    public TourLogServiceImpl(TourLogRepository tourLogRepository, TourRepository tourRepository, 
+                              TourLogMapper tourLogMapper, UserRepository userRepository) {
         this.tourLogRepository = tourLogRepository;
         this.tourRepository = tourRepository;
         this.tourLogMapper = tourLogMapper;
+        this.userRepository = userRepository;
+    }
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     @SuppressWarnings("null")
     public List<TourLogDto> findByTourId(Long tourId) {
-        if (!tourRepository.existsById(tourId)) {
+        Tour tour = tourRepository.findById(tourId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!tour.getOwner().getId().equals(getCurrentUser().getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return tourLogRepository.findByTourId(tourId).stream().map(tourLogMapper::toDto).toList();
@@ -42,6 +56,9 @@ public class TourLogServiceImpl implements TourLogService {
     public TourLogDto create(Long tourId, TourLogDto dto) {
         Tour tour = tourRepository.findById(tourId)  
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!tour.getOwner().getId().equals(getCurrentUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         TourLog entity = tourLogMapper.toNewEntity(dto, tour);
         TourLog saved = tourLogRepository.save(entity);
         return tourLogMapper.toDto(saved);
@@ -56,6 +73,9 @@ public class TourLogServiceImpl implements TourLogService {
         if (!entity.getTour().getId().equals(tourId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+        if (!entity.getTour().getOwner().getId().equals(getCurrentUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         tourLogMapper.apply(dto, entity);
         TourLog saved = tourLogRepository.save(entity);
         return tourLogMapper.toDto(saved);
@@ -68,6 +88,9 @@ public class TourLogServiceImpl implements TourLogService {
         TourLog entity = tourLogRepository.findById(logId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (!entity.getTour().getId().equals(tourId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (!entity.getTour().getOwner().getId().equals(getCurrentUser().getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         tourLogRepository.delete(entity);

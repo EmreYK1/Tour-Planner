@@ -10,8 +10,10 @@ import com.tourplanner.dto.TourDto;
 import com.tourplanner.mapper.TourMapper;
 import com.tourplanner.model.Tour;
 import com.tourplanner.model.TourLog;
+import com.tourplanner.model.User;
 import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
+import com.tourplanner.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,20 +37,29 @@ public class TourServiceImpl implements TourService {
     private final OrsClient orsClient;
     private final ObjectMapper objectMapper;
     private final TourLogRepository tourLogRepository;
+    private final UserRepository userRepository;
 
     public TourServiceImpl(TourRepository tourRepository, TourMapper tourMapper,
-                           OrsClient orsClient, ObjectMapper objectMapper, TourLogRepository tourLogRepository) {
+                           OrsClient orsClient, ObjectMapper objectMapper, TourLogRepository tourLogRepository,
+                           UserRepository userRepository) {
         this.tourRepository = tourRepository;
         this.tourMapper = tourMapper;
         this.orsClient = orsClient;
         this.objectMapper = objectMapper;
         this.tourLogRepository = tourLogRepository;
+        this.userRepository = userRepository;
+    }
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TourDto> findAll() {
-        return tourRepository.findAll().stream().map(this::toDtoWithComputed).toList();
+        return tourRepository.findByOwner(getCurrentUser()).stream().map(this::toDtoWithComputed).toList();
     }
 
     @Override
@@ -58,13 +70,14 @@ public class TourServiceImpl implements TourService {
         }
         
         String lowerQuery = query.toLowerCase();
+        User currentUser = getCurrentUser();
         
         // 1. DB-Suche auf Tour-Feldern
-        List<Tour> matchedByTour = tourRepository.searchByText(query);
+        List<Tour> matchedByTour = tourRepository.searchByTextAndOwner(query, currentUser);
         Set<Long> matchedTourIds = matchedByTour.stream().map(Tour::getId).collect(Collectors.toSet());
         
         List<TourDto> results = new ArrayList<>();
-        List<Tour> allTours = tourRepository.findAll();
+        List<Tour> allTours = tourRepository.findByOwner(currentUser);
         
         for (Tour tour : allTours) {
             boolean matches = false;
@@ -105,7 +118,7 @@ public class TourServiceImpl implements TourService {
     @Override
     @Transactional(readOnly = true)
     public Optional<TourDto> findById(long id) {
-        return tourRepository.findById(id).map(this::toDtoWithComputed);
+        return tourRepository.findById(id).filter(tour -> tour.getOwner().getId().equals(getCurrentUser().getId())).map(this::toDtoWithComputed);
     }
 
     @Override
@@ -113,6 +126,7 @@ public class TourServiceImpl implements TourService {
     @SuppressWarnings("null")
     public TourDto create(TourDto tour) {
         Tour entity = tourMapper.toNewEntity(tour);
+        entity.setOwner(getCurrentUser());
         enrichWithOrsData(entity, tour);
         Tour saved = tourRepository.save(entity);
         return toDtoWithComputed(saved);
@@ -124,6 +138,9 @@ public class TourServiceImpl implements TourService {
     public TourDto update(long id, TourDto dto) {
         Tour entity = tourRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!entity.getOwner().getId().equals(getCurrentUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         tourMapper.apply(dto, entity);
         enrichWithOrsData(entity, dto);
         Tour saved = tourRepository.save(entity);
@@ -155,6 +172,9 @@ public class TourServiceImpl implements TourService {
     public TourDto updateImage(long id, String imageUrl) {
         Tour entity = tourRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!entity.getOwner().getId().equals(getCurrentUser().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         entity.setImage(imageUrl);
         Tour saved = tourRepository.save(entity);
         return toDtoWithComputed(saved);
@@ -163,7 +183,9 @@ public class TourServiceImpl implements TourService {
     @Override
     @Transactional
     public void delete(long id) {
-        if (!tourRepository.existsById(id)) {
+        Tour entity = tourRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!entity.getOwner().getId().equals(getCurrentUser().getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         tourRepository.deleteById(id);
