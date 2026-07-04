@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface TourService {
 
     List<TourDto> findAll();
+    
+    List<TourDto> search(String query);
 
     Optional<TourDto> findById(long id);
 

@@ -37,8 +37,8 @@ public class TourController {
     }
 
     @GetMapping
-    public List<TourDto> list() {
-        return tourService.findAll();
+    public List<TourDto> list(@RequestParam(required = false) String search) {
+        return tourService.search(search);
     }
 
     @GetMapping("/{id}")

@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface TourLogRepository extends JpaRepository<TourLog, Long> {
     List<TourLog> findByTourId(Long tourId);
+    List<TourLog> findByTourIdAndCommentContainingIgnoreCase(Long tourId, String comment);
 }
 

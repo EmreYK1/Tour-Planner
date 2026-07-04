@@ -12,7 +12,11 @@ import com.tourplanner.model.Tour;
 import com.tourplanner.model.TourLog;
 import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -44,6 +48,58 @@ public class TourServiceImpl implements TourService {
     @Transactional(readOnly = true)
     public List<TourDto> findAll() {
         return tourRepository.findAll().stream().map(this::toDtoWithComputed).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TourDto> search(String query) {
+        if (query == null || query.isBlank()) {
+            return findAll();
+        }
+        
+        String lowerQuery = query.toLowerCase();
+        
+        // 1. DB-Suche auf Tour-Feldern
+        List<Tour> matchedByTour = tourRepository.searchByText(query);
+        Set<Long> matchedTourIds = matchedByTour.stream().map(Tour::getId).collect(Collectors.toSet());
+        
+        List<TourDto> results = new ArrayList<>();
+        List<Tour> allTours = tourRepository.findAll();
+        
+        for (Tour tour : allTours) {
+            boolean matches = false;
+            
+            // 1. Match from DB search
+            if (matchedTourIds.contains(tour.getId())) {
+                matches = true;
+            }
+            
+            // 2. Tours einschließen deren Logs den Begriff im Comment enthalten
+            if (!matches) {
+                List<TourLog> matchedLogs = tourLogRepository.findByTourIdAndCommentContainingIgnoreCase(tour.getId(), query);
+                if (!matchedLogs.isEmpty()) {
+                    matches = true;
+                }
+            }
+            
+            // Compute DTO (we need it for step 3 and to return)
+            TourDto dto = toDtoWithComputed(tour);
+            
+            // 3. Berechnete Attribute (childFriendliness, popularity-Label) auf Match prüfen
+            if (!matches) {
+                if (dto.childFriendliness().toLowerCase().contains(lowerQuery) || 
+                    String.valueOf(dto.popularity()).contains(lowerQuery)) {
+                    matches = true;
+                }
+            }
+            
+            // 4. Duplikate entfernen (Set) - handled by the fact that we iterate allTours exactly once
+            if (matches) {
+                results.add(dto);
+            }
+        }
+        
+        return results;
     }
 
     @Override
