@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+    private static final String CLAIM_USER_ID = "userId";
+
     private final SecretKey signingKey;
     private final long expirationMs;
 
@@ -29,6 +31,7 @@ public class JwtService {
         Date expiry = new Date(now.getTime() + expirationMs);
         return Jwts.builder()
                 .subject(user.getEmail())
+                .claim(CLAIM_USER_ID, user.getId())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(signingKey)
@@ -46,6 +49,14 @@ public class JwtService {
 
     public String extractEmail(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public Long extractUserId(String token) {
+        Object id = parseClaims(token).get(CLAIM_USER_ID);
+        if (id instanceof Integer intId) {
+            return intId.longValue();
+        }
+        return ((Number) id).longValue();
     }
 
     private Claims parseClaims(String token) {

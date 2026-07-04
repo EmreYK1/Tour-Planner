@@ -1,9 +1,5 @@
-// backend/src/main/java/com/tourplanner/dto/TourDto.java
-// @deprecated Ersetzt durch CreateTourRequest (Input) und TourResponse (Output).
-// Diese Klasse kann entfernt werden, sobald alle Abhängigkeiten migriert sind.
 package com.tourplanner.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tourplanner.model.TransportType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -11,22 +7,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record TourDto(
-        Long id,
+// Eingehende Daten beim Anlegen oder Aktualisieren einer Tour (nur Input-Felder inkl. Validation).
+public record CreateTourRequest(
         @NotBlank @Size(max = 255) String name,
         @Size(max = 10_000) String description,
-        @NotBlank @Size(max = 500) @JsonProperty("from") String fromPoint,
-        @NotBlank @Size(max = 500) @JsonProperty("to") String toPoint,
+        @NotBlank @Size(max = 500) String from,
+        @NotBlank @Size(max = 500) String to,
         @NotNull TransportType transportType,
         @DecimalMin("0.0") double distance,
         @Min(0) long estimatedTime,
         @Size(max = 2000) String image,
-        String routeGeometry,
         Double fromLon,
         Double fromLat,
         Double toLon,
-        Double toLat,
-        int popularity,
-        String childFriendliness
+        Double toLat
 ) {
 }

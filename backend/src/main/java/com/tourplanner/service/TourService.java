@@ -1,25 +1,26 @@
 // backend/src/main/java/com/tourplanner/service/TourService.java
-// Schnittstelle der Anwendungslogik für Touren (lesen, anlegen).
+// Schnittstelle der Anwendungslogik für Touren (lesen, anlegen, aktualisieren, löschen).
 package com.tourplanner.service;
 
-import com.tourplanner.dto.TourDto;
+import com.tourplanner.dto.CreateTourRequest;
+import com.tourplanner.dto.TourResponse;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TourService {
 
-    List<TourDto> findAll();
-    
-    List<TourDto> search(String query);
+    List<TourResponse> findAll();
 
-    Optional<TourDto> findById(long id);
+    List<TourResponse> search(String query);
 
-    TourDto create(TourDto tour);
+    Optional<TourResponse> findById(long id);
 
-    TourDto update(long id, TourDto dto);
+    TourResponse create(CreateTourRequest request);
 
-    TourDto updateImage(long id, String imageUrl);
+    TourResponse update(long id, CreateTourRequest request);
+
+    TourResponse updateImage(long id, String imageUrl);
 
     void delete(long id);
 }

@@ -22,15 +22,7 @@ public class GeocodingController {
         this.orsClient = orsClient;
     }
 
-    /**
-     * Wandelt eine Freitextadresse in geografische Koordinaten um.
-     *
-     * Beispiel: GET /api/geocode?q=Wien
-     * Antwort:  { "lon": 16.3738, "lat": 48.2082 }
-     *
-     * @param q Adresse als Freitext (z.B. "Wien" oder "Stephansplatz, Wien")
-     * @return lon/lat des ersten ORS-Treffers
-     */
+    // Wandelt eine Freitextadresse in lon/lat um; GET /api/geocode?q=Wien
     @GetMapping
     public GeocodingResultDto geocode(@RequestParam String q) {
         if (q == null || q.isBlank()) {

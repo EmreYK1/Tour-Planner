@@ -1,16 +1,17 @@
 // backend/src/main/java/com/tourplanner/mapper/TourMapper.java
-// Wandelt JPA-Entity Tour in TourDto um und umgekehrt.
+// Wandelt JPA-Entity Tour in TourResponse um und mapped CreateTourRequest auf die Entity.
 package com.tourplanner.mapper;
 
-import com.tourplanner.dto.TourDto;
+import com.tourplanner.dto.CreateTourRequest;
+import com.tourplanner.dto.TourResponse;
 import com.tourplanner.model.Tour;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TourMapper {
 
-    public TourDto toDto(Tour entity, int popularity, String childFriendliness) {
-        return new TourDto(
+    public TourResponse toResponse(Tour entity, int popularity, String childFriendliness) {
+        return new TourResponse(
                 entity.getId(),
                 entity.getName(),
                 nullToEmpty(entity.getDescription()),
@@ -21,26 +22,26 @@ public class TourMapper {
                 entity.getEstimatedTime(),
                 nullToEmpty(entity.getImage()),
                 entity.getRouteGeometry(),
-                null, null, null, null,
-                popularity, childFriendliness
+                popularity,
+                childFriendliness
         );
     }
 
-    public Tour toNewEntity(TourDto dto) {
+    public Tour toNewEntity(CreateTourRequest request) {
         Tour tour = new Tour();
-        apply(dto, tour);
+        apply(request, tour);
         return tour;
     }
 
-    public void apply(TourDto dto, Tour entity) {
-        entity.setName(dto.name());
-        entity.setDescription(emptyToNull(dto.description()));
-        entity.setFromLocation(dto.fromPoint());
-        entity.setToLocation(dto.toPoint());
-        entity.setTransportType(dto.transportType());
-        entity.setDistance(dto.distance());
-        entity.setEstimatedTime(dto.estimatedTime());
-        entity.setImage(emptyToNull(dto.image()));
+    public void apply(CreateTourRequest request, Tour entity) {
+        entity.setName(request.name());
+        entity.setDescription(emptyToNull(request.description()));
+        entity.setFromLocation(request.from());
+        entity.setToLocation(request.to());
+        entity.setTransportType(request.transportType());
+        entity.setDistance(request.distance());
+        entity.setEstimatedTime(request.estimatedTime());
+        entity.setImage(emptyToNull(request.image()));
     }
 
     private static String nullToEmpty(String value) {

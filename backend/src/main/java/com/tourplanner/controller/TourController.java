@@ -1,72 +1,55 @@
 // backend/src/main/java/com/tourplanner/controller/TourController.java
-// REST-API für Touren: Liste, Einzelabruf und Anlegen.
+// REST-Endpunkte für Tour-CRUD: Lesen, Anlegen, Aktualisieren, Löschen.
 package com.tourplanner.controller;
 
-import com.tourplanner.dto.TourDto;
+import com.tourplanner.dto.CreateTourRequest;
+import com.tourplanner.dto.TourResponse;
 import com.tourplanner.service.TourService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
-import com.tourplanner.service.ImageStorageService;
-import java.io.IOException;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tours")
 public class TourController {
 
     private final TourService tourService;
-    private final ImageStorageService imageStorageService;
 
-    public TourController(TourService tourService, ImageStorageService imageStorageService) {
+    public TourController(TourService tourService) {
         this.tourService = tourService;
-        this.imageStorageService = imageStorageService;
     }
 
     @GetMapping
-    public List<TourDto> list(@RequestParam(required = false) String search) {
+    public List<TourResponse> list(@RequestParam(required = false) String search) {
         return tourService.search(search);
     }
 
     @GetMapping("/{id}")
-    public TourDto get(@PathVariable long id) {
+    public TourResponse get(@PathVariable long id) {
         return tourService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TourDto create(@Valid @RequestBody TourDto tour) {
-        return tourService.create(tour);
-    }
-
-    @PostMapping("/{id}/image")
-    public ResponseEntity<String> uploadImage(@PathVariable long id, @RequestParam("file") MultipartFile file) {
-        try {
-            String imageUrl = imageStorageService.saveImage(file);
-            tourService.updateImage(id, imageUrl);
-            return ResponseEntity.ok(imageUrl);
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fehler beim Speichern der Bilddatei");
-        }
+    public TourResponse create(@Valid @RequestBody CreateTourRequest request) {
+        return tourService.create(request);
     }
 
     @PutMapping("/{id}")
-    public TourDto update(@PathVariable long id, @Valid @RequestBody TourDto tour) {
-        return tourService.update(id, tour);
+    public TourResponse update(@PathVariable long id, @Valid @RequestBody CreateTourRequest request) {
+        return tourService.update(id, request);
     }
 
     @DeleteMapping("/{id}")

@@ -1,221 +1,121 @@
 // backend/src/main/java/com/tourplanner/service/TourServiceImpl.java
-// Implementiert TourService mit JPA-Repository und TourMapper.
+// Orchestriert die Tour-Use-Cases: delegiert an spezialisierte Komponenten.
 package com.tourplanner.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tourplanner.client.OrsClient;
-import com.tourplanner.client.OrsRouteResult;
-import com.tourplanner.dto.TourDto;
+import com.tourplanner.dto.CreateTourRequest;
+import com.tourplanner.dto.TourResponse;
 import com.tourplanner.mapper.TourMapper;
 import com.tourplanner.model.Tour;
 import com.tourplanner.model.TourLog;
 import com.tourplanner.model.User;
-import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
-import com.tourplanner.repository.UserRepository;
-import java.util.ArrayList;
+import com.tourplanner.service.shared.SecurityContextService;
+import com.tourplanner.service.tour.TourDtoAssembler;
+import com.tourplanner.service.tour.TourEnrichmentService;
+import com.tourplanner.service.tour.TourOwnershipGuard;
+import com.tourplanner.service.tour.TourSearchService;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TourServiceImpl implements TourService {
 
-    private static final Logger log = LoggerFactory.getLogger(TourServiceImpl.class);
-
     private final TourRepository tourRepository;
     private final TourMapper tourMapper;
-    private final OrsClient orsClient;
-    private final ObjectMapper objectMapper;
-    private final TourLogRepository tourLogRepository;
-    private final UserRepository userRepository;
+    private final TourDtoAssembler dtoAssembler;
+    private final TourEnrichmentService enrichmentService;
+    private final TourOwnershipGuard ownershipGuard;
+    private final TourSearchService searchService;
+    private final SecurityContextService securityContextService;
 
-    public TourServiceImpl(TourRepository tourRepository, TourMapper tourMapper,
-                           OrsClient orsClient, ObjectMapper objectMapper, TourLogRepository tourLogRepository,
-                           UserRepository userRepository) {
+    public TourServiceImpl(TourRepository tourRepository,
+                           TourMapper tourMapper,
+                           TourDtoAssembler dtoAssembler,
+                           TourEnrichmentService enrichmentService,
+                           TourOwnershipGuard ownershipGuard,
+                           TourSearchService searchService,
+                           SecurityContextService securityContextService) {
         this.tourRepository = tourRepository;
         this.tourMapper = tourMapper;
-        this.orsClient = orsClient;
-        this.objectMapper = objectMapper;
-        this.tourLogRepository = tourLogRepository;
-        this.userRepository = userRepository;
-    }
-
-    private User getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        this.dtoAssembler = dtoAssembler;
+        this.enrichmentService = enrichmentService;
+        this.ownershipGuard = ownershipGuard;
+        this.searchService = searchService;
+        this.securityContextService = securityContextService;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TourDto> findAll() {
-        return tourRepository.findByOwner(getCurrentUser()).stream().map(this::toDtoWithComputed).toList();
+    public List<TourResponse> findAll() {
+        List<Tour> tours = toursOfCurrentUser();
+        // Alle Logs in einer einzigen Query laden – kein N+1
+        Map<Long, List<TourLog>> logMap = dtoAssembler.buildLogMap(tours);
+        return tours.stream()
+                .map(tour -> dtoAssembler.assemble(tour, logMap))
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TourDto> search(String query) {
+    public List<TourResponse> search(String query) {
         if (query == null || query.isBlank()) {
             return findAll();
         }
-        
-        String lowerQuery = query.toLowerCase();
-        User currentUser = getCurrentUser();
-        
-        // 1. DB-Suche auf Tour-Feldern
-        List<Tour> matchedByTour = tourRepository.searchByTextAndOwner(query, currentUser);
-        Set<Long> matchedTourIds = matchedByTour.stream().map(Tour::getId).collect(Collectors.toSet());
-        
-        List<TourDto> results = new ArrayList<>();
-        List<Tour> allTours = tourRepository.findByOwner(currentUser);
-        
-        for (Tour tour : allTours) {
-            boolean matches = false;
-            
-            // 1. Match from DB search
-            if (matchedTourIds.contains(tour.getId())) {
-                matches = true;
-            }
-            
-            // 2. Tours einschließen deren Logs den Begriff im Comment enthalten
-            if (!matches) {
-                List<TourLog> matchedLogs = tourLogRepository.findByTourIdAndCommentContainingIgnoreCase(tour.getId(), query);
-                if (!matchedLogs.isEmpty()) {
-                    matches = true;
-                }
-            }
-            
-            // Compute DTO (we need it for step 3 and to return)
-            TourDto dto = toDtoWithComputed(tour);
-            
-            // 3. Berechnete Attribute (childFriendliness, popularity-Label) auf Match prüfen
-            if (!matches) {
-                if (dto.childFriendliness().toLowerCase().contains(lowerQuery) || 
-                    String.valueOf(dto.popularity()).contains(lowerQuery)) {
-                    matches = true;
-                }
-            }
-            
-            // 4. Duplikate entfernen (Set) - handled by the fact that we iterate allTours exactly once
-            if (matches) {
-                results.add(dto);
-            }
-        }
-        
-        return results;
+        User currentUser = securityContextService.getCurrentUser();
+        List<Tour> ownedTours = tourRepository.findByOwner(currentUser);
+        List<Tour> matched = searchService.filterByQuery(ownedTours, currentUser, query);
+        // Log-Map für die gefilterten Touren aufbauen – kein N+1
+        Map<Long, List<TourLog>> logMap = dtoAssembler.buildLogMap(matched);
+        return matched.stream()
+                .map(tour -> dtoAssembler.assemble(tour, logMap))
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<TourDto> findById(long id) {
-        return tourRepository.findById(id).filter(tour -> tour.getOwner().getId().equals(getCurrentUser().getId())).map(this::toDtoWithComputed);
+    public Optional<TourResponse> findById(long id) {
+        User currentUser = securityContextService.getCurrentUser();
+        return tourRepository.findById(id)
+                .filter(tour -> ownershipGuard.isOwnedBy(tour, currentUser))
+                .map(dtoAssembler::assemble);
     }
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
-    public TourDto create(TourDto tour) {
-        Tour entity = tourMapper.toNewEntity(tour);
-        entity.setOwner(getCurrentUser());
-        enrichWithOrsData(entity, tour);
-        Tour saved = tourRepository.save(entity);
-        return toDtoWithComputed(saved);
+    public TourResponse create(CreateTourRequest request) {
+        Tour entity = tourMapper.toNewEntity(request);
+        entity.setOwner(securityContextService.getCurrentUser());
+        enrichmentService.enrichWithRouteData(entity, request);
+        return dtoAssembler.assemble(tourRepository.save(entity));
     }
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
-    public TourDto update(long id, TourDto dto) {
-        Tour entity = tourRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        if (!entity.getOwner().getId().equals(getCurrentUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        tourMapper.apply(dto, entity);
-        enrichWithOrsData(entity, dto);
-        Tour saved = tourRepository.save(entity);
-        return toDtoWithComputed(saved);
-    }
-
-    private void enrichWithOrsData(Tour entity, TourDto dto) {
-        if (dto.fromLon() == null || dto.fromLat() == null
-                || dto.toLon() == null || dto.toLat() == null) {
-            return;
-        }
-        try {
-            List<List<Double>> coords = List.of(
-                    List.of(dto.fromLon(), dto.fromLat()),
-                    List.of(dto.toLon(), dto.toLat()));
-            OrsRouteResult result = orsClient.fetchRoute(dto.transportType(), coords);
-            entity.setDistance(result.distanceMeters() / 1000.0);
-            entity.setEstimatedTime((long) result.durationSeconds());
-            entity.setRouteGeometry(objectMapper.writeValueAsString(result.geometry()));
-        } catch (JsonProcessingException e) {
-            log.warn("Could not serialize ORS geometry: {}", e.getMessage());
-        } catch (Exception e) {
-            log.warn("ORS route fetch failed, keeping user-provided values: {}", e.getMessage());
-        }
+    public TourResponse update(long id, CreateTourRequest request) {
+        Tour entity = ownershipGuard.requireOwnedTour(id);
+        tourMapper.apply(request, entity);
+        enrichmentService.enrichWithRouteData(entity, request);
+        return dtoAssembler.assemble(tourRepository.save(entity));
     }
 
     @Override
     @Transactional
-    public TourDto updateImage(long id, String imageUrl) {
-        Tour entity = tourRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        if (!entity.getOwner().getId().equals(getCurrentUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public TourResponse updateImage(long id, String imageUrl) {
+        Tour entity = ownershipGuard.requireOwnedTour(id);
         entity.setImage(imageUrl);
-        Tour saved = tourRepository.save(entity);
-        return toDtoWithComputed(saved);
+        return dtoAssembler.assemble(tourRepository.save(entity));
     }
 
     @Override
     @Transactional
     public void delete(long id) {
-        Tour entity = tourRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        if (!entity.getOwner().getId().equals(getCurrentUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        tourRepository.deleteById(id);
+        tourRepository.delete(ownershipGuard.requireOwnedTour(id));
     }
 
-    private TourDto toDtoWithComputed(Tour entity) {
-        List<TourLog> logs = tourLogRepository.findByTourId(entity.getId());
-        int popularity = computePopularity(entity.getId());
-        String childFriendliness = computeChildFriendliness(logs);
-        return tourMapper.toDto(entity, popularity, childFriendliness);
-    }
-
-    private int computePopularity(long tourId) {
-        return tourLogRepository.findByTourId(tourId).size();
-    }
-
-    private String computeChildFriendliness(List<TourLog> logs) {
-        if (logs == null || logs.isEmpty()) {
-            return "Niedrig";
-        }
-        double avgDifficulty = logs.stream().mapToInt(TourLog::getDifficulty).average().orElse(0.0);
-        double avgDistance = logs.stream().mapToDouble(TourLog::getTotalDistance).average().orElse(0.0);
-        double avgTime = logs.stream().mapToLong(TourLog::getTotalTime).average().orElse(0.0);
-
-        if (avgDifficulty <= 2 && avgDistance <= 10.0 && avgTime <= 120.0) {
-            return "Hoch";
-        }
-        if (avgDifficulty <= 3 && avgDistance <= 25.0) {
-            return "Mittel";
-        }
-        return "Niedrig";
+    private List<Tour> toursOfCurrentUser() {
+        return tourRepository.findByOwner(securityContextService.getCurrentUser());
     }
 }

@@ -12,7 +12,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -44,13 +47,11 @@ public class Tour {
     @Column(name = "transport_type", nullable = false, length = 50)
     private TransportType transportType;
 
-    /** Strecke in km */
     @Column(nullable = false)
-    private double distance;
+    private double distance; // km
 
-    /** Dauer in Sekunden */
     @Column(name = "estimated_time_seconds", nullable = false)
-    private long estimatedTime;
+    private long estimatedTime; // Sekunden
 
     @Column(length = 2000)
     private String image;
@@ -61,4 +62,21 @@ public class Tour {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

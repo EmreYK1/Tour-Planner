@@ -26,12 +26,7 @@ public class OrsClient {
                 .build();
     }
 
-    /**
-     * Ruft die ORS Directions API auf.
-     *
-     * @param coordinates ORS-Format: [[lon, lat], [lon, lat], ...], mindestens 2 Punkte
-     * @return Distanz (m), Dauer (s), GeoJSON LineString-Geometrie
-     */
+    // Ruft die ORS Directions API auf; gibt Distanz (m), Dauer (s) und GeoJSON-Geometrie zurück.
     public OrsRouteResult fetchRoute(TransportType transportType, List<List<Double>> coordinates) {
         if (apiKey == null || apiKey.isBlank()) {
             throw new OrsApiException("ORS API key is not configured (ors.api.key)");
@@ -89,32 +84,7 @@ public class OrsClient {
         };
     }
 
-    // geometry_format wurde in ORS API v9 entfernt – /geojson Endpoint liefert direkte Koordinaten
-    private record OrsDirectionsRequest(
-            List<List<Double>> coordinates,
-            boolean geometry,
-            boolean instructions) {
-
-        static OrsDirectionsRequest forRoute(List<List<Double>> coordinates) {
-            return new OrsDirectionsRequest(coordinates, true, false);
-        }
-    }
-
-    // GeoJSON FeatureCollection Response des /geojson Endpoints (ORS v9+)
-    private record OrsGeoJsonResponse(List<Feature> features) {
-        private record Feature(Properties properties, OrsRouteResponse.Route.Geometry geometry) {}
-        private record Properties(Summary summary) {}
-        private record Summary(double distance, double duration) {}
-    }
-
-    /**
-     * Löst eine Freitextadresse in geografische Koordinaten auf (Geocoding).
-     * Verwendet den ORS Pelias-Endpoint; gibt den ersten Treffer zurück.
-     *
-     * @param address Freitextadresse, z.B. "Wien" oder "Stephansplatz, Wien"
-     * @return GeocodingResultDto mit lon/lat des ersten Treffers
-     * @throws OrsApiException wenn kein Ergebnis gefunden wurde oder der API-Key fehlt
-     */
+    // Löst eine Freitextadresse in lon/lat-Koordinaten auf; gibt den ersten ORS-Treffer zurück.
     public GeocodingResultDto fetchGeocode(String address) {
         if (apiKey == null || apiKey.isBlank()) {
             throw new OrsApiException("ORS API key is not configured (ors.api.key)");
@@ -139,7 +109,22 @@ public class OrsClient {
         return new GeocodingResultDto(coords.get(0), coords.get(1));
     }
 
-    // Interne Records zum Deserialisieren der ORS Geocoding-Antwort (GeoJSON FeatureCollection)
+    private record OrsDirectionsRequest(
+            List<List<Double>> coordinates,
+            boolean geometry,
+            boolean instructions) {
+
+        static OrsDirectionsRequest forRoute(List<List<Double>> coordinates) {
+            return new OrsDirectionsRequest(coordinates, true, false);
+        }
+    }
+
+    private record OrsGeoJsonResponse(List<Feature> features) {
+        private record Feature(Properties properties, OrsRouteResponse.Route.Geometry geometry) {}
+        private record Properties(Summary summary) {}
+        private record Summary(double distance, double duration) {}
+    }
+
     private record OrsGeocodeResponse(List<OrsGeocodeFeature> features) {}
     private record OrsGeocodeFeature(OrsGeocodeGeometry geometry) {}
     private record OrsGeocodeGeometry(List<Double> coordinates) {}
