@@ -9,7 +9,10 @@ import com.tourplanner.client.OrsRouteResult;
 import com.tourplanner.dto.TourDto;
 import com.tourplanner.mapper.TourMapper;
 import com.tourplanner.model.Tour;
+import com.tourplanner.model.User;
 import com.tourplanner.repository.TourRepository;
+import com.tourplanner.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class TourServiceImpl implements TourService {
@@ -28,32 +32,46 @@ public class TourServiceImpl implements TourService {
     private final TourMapper tourMapper;
     private final OrsClient orsClient;
     private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+
 
     public TourServiceImpl(TourRepository tourRepository, TourMapper tourMapper,
-                           OrsClient orsClient, ObjectMapper objectMapper) {
+                           OrsClient orsClient, ObjectMapper objectMapper, UserRepository userRepository) {
         this.tourRepository = tourRepository;
         this.tourMapper = tourMapper;
         this.orsClient = orsClient;
         this.objectMapper = objectMapper;
+        this.userRepository = userRepository;
+    }
+
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = (String) auth.getPrincipal();
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TourDto> findAll() {
-        return tourRepository.findAll().stream().map(tourMapper::toDto).toList();
+        User currentUser = getCurrentUser();
+        return tourRepository.findByOwner(currentUser).stream().map(tourMapper::toDto).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<TourDto> findById(long id) {
-        return tourRepository.findById(id).map(tourMapper::toDto);
+        User currentUser = getCurrentUser();
+        return tourRepository.findByIdAndOwner(id, currentUser).map(tourMapper::toDto);
     }
 
     @Override
     @Transactional
     @SuppressWarnings("null")
     public TourDto create(TourDto tour) {
+        User currentUser = getCurrentUser();
         Tour entity = tourMapper.toNewEntity(tour);
+        entity.setOwner(currentUser);
         enrichWithOrsData(entity, tour);
         Tour saved = tourRepository.save(entity);
         return tourMapper.toDto(saved);
@@ -63,7 +81,8 @@ public class TourServiceImpl implements TourService {
     @Transactional
     @SuppressWarnings("null")
     public TourDto update(long id, TourDto dto) {
-        Tour entity = tourRepository.findById(id)
+        User currentUser = getCurrentUser();
+        Tour entity = tourRepository.findByIdAndOwner(id, currentUser)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         tourMapper.apply(dto, entity);
         enrichWithOrsData(entity, dto);
@@ -94,7 +113,8 @@ public class TourServiceImpl implements TourService {
     @Override
     @Transactional
     public TourDto updateImage(long id, String imageUrl) {
-        Tour entity = tourRepository.findById(id)
+        User currentUser = getCurrentUser();
+        Tour entity = tourRepository.findByIdAndOwner(id, currentUser)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         entity.setImage(imageUrl);
         Tour saved = tourRepository.save(entity);
@@ -104,9 +124,9 @@ public class TourServiceImpl implements TourService {
     @Override
     @Transactional
     public void delete(long id) {
-        if (!tourRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        tourRepository.deleteById(id);
+        User currentUser = getCurrentUser();
+        Tour entity = tourRepository.findByIdAndOwner(id, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        tourRepository.delete(entity);
     }
 }
