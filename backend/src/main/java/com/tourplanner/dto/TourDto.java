@@ -24,6 +24,8 @@ public record TourDto(
         Double fromLon,
         Double fromLat,
         Double toLon,
-        Double toLat
+        Double toLat,
+        int popularity,
+        String childFriendliness
 ) {
 }

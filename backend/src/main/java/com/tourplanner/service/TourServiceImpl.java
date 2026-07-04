@@ -9,9 +9,10 @@ import com.tourplanner.client.OrsRouteResult;
 import com.tourplanner.dto.TourDto;
 import com.tourplanner.mapper.TourMapper;
 import com.tourplanner.model.Tour;
+import com.tourplanner.model.TourLog;
+import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,25 +29,27 @@ public class TourServiceImpl implements TourService {
     private final TourMapper tourMapper;
     private final OrsClient orsClient;
     private final ObjectMapper objectMapper;
+    private final TourLogRepository tourLogRepository;
 
     public TourServiceImpl(TourRepository tourRepository, TourMapper tourMapper,
-                           OrsClient orsClient, ObjectMapper objectMapper) {
+                           OrsClient orsClient, ObjectMapper objectMapper, TourLogRepository tourLogRepository) {
         this.tourRepository = tourRepository;
         this.tourMapper = tourMapper;
         this.orsClient = orsClient;
         this.objectMapper = objectMapper;
+        this.tourLogRepository = tourLogRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TourDto> findAll() {
-        return tourRepository.findAll().stream().map(tourMapper::toDto).toList();
+        return tourRepository.findAll().stream().map(this::toDtoWithComputed).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<TourDto> findById(long id) {
-        return tourRepository.findById(id).map(tourMapper::toDto);
+        return tourRepository.findById(id).map(this::toDtoWithComputed);
     }
 
     @Override
@@ -56,7 +59,7 @@ public class TourServiceImpl implements TourService {
         Tour entity = tourMapper.toNewEntity(tour);
         enrichWithOrsData(entity, tour);
         Tour saved = tourRepository.save(entity);
-        return tourMapper.toDto(saved);
+        return toDtoWithComputed(saved);
     }
 
     @Override
@@ -68,7 +71,7 @@ public class TourServiceImpl implements TourService {
         tourMapper.apply(dto, entity);
         enrichWithOrsData(entity, dto);
         Tour saved = tourRepository.save(entity);
-        return tourMapper.toDto(saved);
+        return toDtoWithComputed(saved);
     }
 
     private void enrichWithOrsData(Tour entity, TourDto dto) {
@@ -98,7 +101,7 @@ public class TourServiceImpl implements TourService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         entity.setImage(imageUrl);
         Tour saved = tourRepository.save(entity);
-        return tourMapper.toDto(saved);
+        return toDtoWithComputed(saved);
     }
 
     @Override
@@ -108,5 +111,33 @@ public class TourServiceImpl implements TourService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         tourRepository.deleteById(id);
+    }
+
+    private TourDto toDtoWithComputed(Tour entity) {
+        List<TourLog> logs = tourLogRepository.findByTourId(entity.getId());
+        int popularity = computePopularity(entity.getId());
+        String childFriendliness = computeChildFriendliness(logs);
+        return tourMapper.toDto(entity, popularity, childFriendliness);
+    }
+
+    private int computePopularity(long tourId) {
+        return tourLogRepository.findByTourId(tourId).size();
+    }
+
+    private String computeChildFriendliness(List<TourLog> logs) {
+        if (logs == null || logs.isEmpty()) {
+            return "Niedrig";
+        }
+        double avgDifficulty = logs.stream().mapToInt(TourLog::getDifficulty).average().orElse(0.0);
+        double avgDistance = logs.stream().mapToDouble(TourLog::getTotalDistance).average().orElse(0.0);
+        double avgTime = logs.stream().mapToLong(TourLog::getTotalTime).average().orElse(0.0);
+
+        if (avgDifficulty <= 2 && avgDistance <= 10.0 && avgTime <= 120.0) {
+            return "Hoch";
+        }
+        if (avgDifficulty <= 3 && avgDistance <= 25.0) {
+            return "Mittel";
+        }
+        return "Niedrig";
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TourMapper {
 
-    public TourDto toDto(Tour entity) {
+    public TourDto toDto(Tour entity, int popularity, String childFriendliness) {
         return new TourDto(
                 entity.getId(),
                 entity.getName(),
@@ -21,7 +21,8 @@ public class TourMapper {
                 entity.getEstimatedTime(),
                 nullToEmpty(entity.getImage()),
                 entity.getRouteGeometry(),
-                null, null, null, null
+                null, null, null, null,
+                popularity, childFriendliness
         );
     }
 
