@@ -1,5 +1,7 @@
 package com.tourplanner.service.tour;
 
+import com.tourplanner.dto.TourExportDto;
+import com.tourplanner.dto.TourLogDto;
 import com.tourplanner.dto.TourResponse;
 import com.tourplanner.mapper.TourMapper;
 import com.tourplanner.model.Tour;
@@ -17,13 +19,23 @@ public class TourDtoAssembler {
     private final TourMapper tourMapper;
     private final TourLogRepository tourLogRepository;
     private final TourAttributeCalculator attributeCalculator;
+    private final com.tourplanner.mapper.TourLogMapper tourLogMapper;
 
     public TourDtoAssembler(TourMapper tourMapper,
                             TourLogRepository tourLogRepository,
-                            TourAttributeCalculator attributeCalculator) {
+                            TourAttributeCalculator attributeCalculator,
+                            com.tourplanner.mapper.TourLogMapper tourLogMapper) {
         this.tourMapper = tourMapper;
         this.tourLogRepository = tourLogRepository;
         this.attributeCalculator = attributeCalculator;
+        this.tourLogMapper = tourLogMapper;
+    }
+
+    public TourExportDto assembleExport(Tour tour, Map<Long, List<TourLog>> logsByTourId) {
+        List<TourLog> logs = logsByTourId.getOrDefault(tour.getId(), List.of());
+        TourResponse response = buildResponse(tour, logs);
+        List<TourLogDto> logDtos = logs.stream().map(tourLogMapper::toDto).toList();
+        return TourExportDto.from(response, logDtos);
     }
 
     // Effiziente Variante für Listen – nutzt vorberechnete Log-Map statt N+1-Queries.
