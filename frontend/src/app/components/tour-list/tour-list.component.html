@@ -4,13 +4,39 @@
 <aside class="sidebar-container">
   <div class="sidebar-header">
     <h2>Touren</h2>
-    <button class="add-btn" aria-label="Neue Tour anlegen" title="Neue Tour hinzufügen" (click)="openCreateForm()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-    </button>
+    <div class="header-actions">
+      <!-- Hidden file input for import -->
+      <input type="file" #fileInput accept=".json" style="display: none" (change)="onFileSelected($event)" />
+
+      <!-- Import Button -->
+      <button class="action-btn" aria-label="Touren importieren" title="Touren importieren" (click)="fileInput.click()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </button>
+
+      <!-- Export Button -->
+      <button class="action-btn" aria-label="Touren exportieren" title="Touren exportieren" (click)="exportTours()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+      </button>
+
+      <!-- Add Tour Button -->
+      <button class="add-btn" aria-label="Neue Tour anlegen" title="Neue Tour hinzufügen" (click)="openCreateForm()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- Suchfeld: [formControl] verbindet das Input mit dem FormControl in der Komponente.

@@ -71,4 +71,24 @@ export class TourStateService {
     this._tours.update((list) => list.map((t) => (t.id === updatedTour.id ? updatedTour : t)));
     this.selectTour(updatedTour);
   }
+
+  // Importiert Touren via Backend und lädt danach die Tourenliste neu.
+  importTours(importData: any[], onSuccess: () => void, onError: (err: string) => void): void {
+    this._loading.set(true);
+    this._loadError.set(null);
+
+    this.tourApi.importTours(importData).subscribe({
+      next: () => {
+        // Zwingt die Liste zum Neuladen
+        this.hasLoaded = false;
+        this.loadTours();
+        onSuccess();
+      },
+      error: (err) => {
+        this._loading.set(false);
+        const message = err.error?.message || 'Der Import ist fehlgeschlagen.';
+        onError(message);
+      }
+    });
+  }
 }

@@ -45,4 +45,14 @@ export class TourApiService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
   }
+
+  // Exportiert alle eigenen Touren inkl. Logs als JSON.
+  exportTours(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.resourceUrl}/export`);
+  }
+
+  // Importiert Touren aus einer Liste.
+  importTours(tours: any[]): Observable<void> {
+    return this.http.post<void>(`${this.resourceUrl}/import`, tours);
+  }
 }
