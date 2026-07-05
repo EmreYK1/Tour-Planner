@@ -5,6 +5,7 @@ package com.tourplanner.controller;
 import com.tourplanner.dto.CreateTourRequest;
 import com.tourplanner.dto.TourExportDto;
 import com.tourplanner.dto.TourResponse;
+import com.tourplanner.exception.TourNotFoundException;
 import com.tourplanner.service.TourService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/tours")
@@ -41,7 +41,7 @@ public class TourController {
     @GetMapping("/{id}")
     public TourResponse get(@PathVariable long id) {
         return tourService.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new TourNotFoundException(id));
     }
 
     @PostMapping

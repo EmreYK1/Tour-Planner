@@ -1,10 +1,10 @@
 package com.tourplanner.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-// 404 statt 403 – verhindert, dass die Existenz fremder Ressourcen verraten wird.
-@ResponseStatus(HttpStatus.NOT_FOUND)
+/**
+ * Wird geworfen, wenn eine Tour mit der angegebenen ID nicht existiert
+ * oder dem aktuellen Nutzer nicht gehört (404 statt 403 verhindert,
+ * dass die Existenz fremder Ressourcen verraten wird).
+ */
 public class TourNotFoundException extends RuntimeException {
 
     public TourNotFoundException(long tourId) {

@@ -1,9 +1,8 @@
 package com.tourplanner.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
+/**
+ * Wird geworfen, wenn Login-Credentials ungültig sind (401 Unauthorized).
+ */
 public class InvalidCredentialsException extends RuntimeException {
 
     public InvalidCredentialsException(String message) {
