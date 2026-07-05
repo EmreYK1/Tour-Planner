@@ -1,141 +1,194 @@
 # Tour Planner
 
-Ein Projekt von Emre Yüksel und Shez Soltani.
+Projektarbeit von Emre Yüksel und Shez Soltani im Rahmen des SWE2-Kurses.
 
-Die Idee: eine Web-App, mit der man Outdoor-Touren planen und nachträglich dokumentieren kann – Wanderungen, Radtouren, Laufstrecken, whatever. Im Kern geht es um eine einfache Tourverwaltung mit Start/Ziel, Transportmittel, Distanz und einer Beschreibung. Langfristig soll da auch eine Karte rein (Leaflet + OpenRouteService) und ein Logbuch für absolvierte Touren.
+Die Idee: eine Web-App mit der man Outdoor-Touren planen und nachträglich dokumentieren kann. Du gibst Start und Ziel ein, wählst ein Transportmittel – der Rest (Route, Distanz, Dauer) wird automatisch über OpenRouteService berechnet. Absolvierte Touren kann man danach mit Logs versehen, die dann die Beliebtheit und Kinderfreundlichkeit einer Tour beeinflussen.
 
-**Stack:** Angular (Frontend) · Spring Boot / Java (Backend) · PostgreSQL · Docker
-
----
-
-## Was aktuell funktioniert
-
-- Touren **anlegen, bearbeiten und löschen** (vollständige CRUD-API im Backend)
-- Tour Logs (Logbuch für absolvierte Touren)
-- **Detailansicht** einer Tour mit allen Attributen (Name, Beschreibung, Start/Ziel, Distanz, Dauer, Transportmittel)
-- **Master-Detail-Layout** – Tourliste links, Details rechts
-- **Formular** mit Validierung – funktioniert für Erstellen und Bearbeiten (DRY, eine Komponente für beides)
-- Saubere Trennung Frontend ↔ Backend über REST-API
-- Alles läuft per Docker (PostgreSQL + Backend + Frontend in einem Befehl)
-
-## Was noch fehlt / geplant ist
-
-- Kartenintegration mit Leaflet
-- Automatische Routen-Berechnung via OpenRouteService
-- Volltextsuche
-- Berechnete Attribute (Beliebtheit, Kinderfreundlichkeit) basierend auf Logs
+**Stack:** Angular 18 · Spring Boot 3 / Java 21 · PostgreSQL · Docker
 
 ---
+
+## Features
+
+Die App hat eine eigene Benutzerverwaltung – jeder Nutzer sieht nur seine eigenen Touren. Authentifizierung läuft über JWT, der Token wird automatisch an alle API-Anfragen angehängt.
+
+Für Touren gibt es komplettes CRUD. Beim Anlegen oder Bearbeiten einer Tour ruft das Backend automatisch die ORS-API auf, löst die eingegebenen Adressen per Geocoding in Koordinaten auf und berechnet Route, Distanz und Dauer. Die resultierende Route wird auf einer Leaflet-Karte in der Detailansicht angezeigt.
+
+Die Tourliste hat eine Suchleiste – getippt wird direkt gefiltert (300ms Debounce), gesucht wird über Name, Beschreibung, Start, Ziel und Transportmittel.
+
+In der Detailansicht tauchen zwei berechnete Badges auf: Beliebtheit (wie viele Logs hat die Tour) und Kinderfreundlichkeit – beides wird serverseitig aus den vorhandenen Logs berechnet und farblich codiert angezeigt (grün/gelb/rot).
+
+Touren lassen sich komplett (inkl. aller Logs) als JSON exportieren und wieder importieren.
 
 ## App starten
 
-### Empfohlen: Docker
+Am einfachsten per Docker:
 
 ```bash
 docker compose up --build
 ```
 
-- Frontend: [http://localhost:4200](http://localhost:4200)
-- Backend: [http://localhost:8080](http://localhost:8080)
+Frontend läuft dann auf [http://localhost:4200](http://localhost:4200), Backend auf [http://localhost:8080](http://localhost:8080).
 
-Beenden: `docker compose down`  
-Datenbank-Volume löschen (fresh start): `docker compose down -v`
+Zum Beenden: `docker compose down`. Mit `-v` wird auch das Datenbank-Volume gelöscht (sauberer Neustart).
 
-> Voraussetzung: [Docker Desktop](https://www.docker.com/products/docker-desktop/) mit WSL2, oder Docker Engine + Compose unter Linux.
+Voraussetzung: Docker Desktop (Windows/Mac mit WSL2) oder Docker Engine + Compose (Linux).
 
----
+Für die Routenberechnung und das Geocoding wird ein API-Key von [openrouteservice.org](https://openrouteservice.org) benötigt – als Umgebungsvariable `ORS_API_KEY`, z.B. in einer `.env`-Datei im Projektordner.
 
-### Manuell (ohne Docker)
+**Manuell (ohne Docker)**
 
-**Backend** – braucht JDK 17 und Maven:
+Backend braucht JDK 21 und Maven:
 
 ```bash
 cd backend
 
-# Mit lokaler H2-Datenbank (kein PostgreSQL nötig):
+# lokale H2-Datenbank, kein PostgreSQL nötig:
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
-# Mit PostgreSQL (Verbindung in application.properties eintragen):
+# mit PostgreSQL:
 mvn spring-boot:run
 ```
 
-**Frontend:**
+Frontend:
 
 ```bash
 cd frontend
 npm install
-npm start        # startet auf http://localhost:4200
+npm start
 ```
 
-> Kein `mvnw` im Repo – Maven muss lokal installiert sein, oder man startet `TourPlannerApplication` direkt aus der IDE (Profil `dev` setzen wenn kein PostgreSQL läuft).
+Kein `mvnw` im Repo, Maven muss lokal installiert sein. Alternativ `TourPlannerApplication` direkt aus der IDE starten (Profil `dev` setzen wenn kein PostgreSQL läuft).
 
----
+## Benutzung
 
-## Projektverzeichnis
+Beim ersten Öffnen landet man auf der Login-Seite. Über den Link darunter kommt man zur Registrierung. Nach dem Login ist man direkt drin.
+
+Die Hauptansicht ist zweigeteilt: links die Tourliste, rechts die Detailansicht der ausgewählten Tour (oder das Formular, wenn man eine Tour anlegt oder bearbeitet).
+
+**Tour anlegen:** Oben links auf „+ Neue Tour" klicken, Formular ausfüllen (Name, Start, Ziel, Transportmittel) und speichern. Route wird automatisch berechnet.
+
+**Tour bearbeiten:** In der Detailansicht auf „Bearbeiten" (oben rechts im Hero-Bild) klicken. Bild kann man dort auch hochladen.
+
+**Suchen:** Einfach in die Suchleiste tippen. Kein Enter nötig, wird automatisch gesucht.
+
+**Log hinzufügen:** Tour auswählen, im Log-Bereich auf „+ Neues Log" klicken. Nach dem Speichern aktualisieren sich die Badges in der Detailansicht.
+
+**Export/Import:** Über die API direkt, siehe [docs/API.md](docs/API.md).
+
+**Abmelden:** Link unten links in der Tourliste.
+
+## REST-API
+
+Vollständige Dokumentation mit Beispielen: [docs/API.md](docs/API.md)
+
+## Noch geplant
+
+- PDF-Report für eine Tour
+- Statistiken über alle Touren
+
+## Projektstruktur
 
 ```
 Tour-Planner/
-├── docker-compose.yml              # Orchestriert PostgreSQL, Backend & Frontend
-├── .gitignore
+├── docker-compose.yml
+├── docs/                           # API-Doku, UX-Beschreibung, Kanban
 │
-├── backend/                        # Java / Spring Boot REST-API
+├── backend/                        # Spring Boot 3 REST-API
 │   ├── Dockerfile
-│   ├── pom.xml                     # Maven-Projektdefinition & Abhängigkeiten
+│   ├── pom.xml
 │   └── src/main/
 │       ├── java/com/tourplanner/
-│       │   ├── TourPlannerApplication.java   # Spring-Boot-Einstiegspunkt
+│       │   ├── TourPlannerApplication.java
+│       │   ├── client/
+│       │   │   └── OrsClient.java              # HTTP-Client für OpenRouteService
 │       │   ├── config/
-│       │   │   ├── WebCorsConfig.java        # CORS-Konfiguration
-│       │   │   └── DevDataInitializer.java   # Testdaten für dev-Profil
+│       │   │   ├── DevDataInitializer.java     # Testdaten für dev-Profil
+│       │   │   ├── ImageResourceConfig.java    # statische Ressource für Bilder
+│       │   │   └── WebCorsConfig.java
 │       │   ├── controller/
-│       │   │   ├── TourController.java       # REST-Endpunkte für Touren
-│       │   │   ├── TourLogController.java    # REST-Endpunkte für Tour-Logs
-│       │   │   └── HealthController.java     # /health Endpoint
+│       │   │   ├── AuthController.java         # /api/auth/register + /login
+│       │   │   ├── GeocodingController.java    # /api/geocode
+│       │   │   ├── GlobalExceptionHandler.java
+│       │   │   ├── HealthController.java
+│       │   │   ├── TourController.java         # CRUD + Suche
+│       │   │   ├── TourExportController.java   # /api/tours/export
+│       │   │   ├── TourImageController.java    # /api/tours/{id}/image
+│       │   │   ├── TourImportController.java   # /api/tours/import
+│       │   │   └── TourLogController.java
 │       │   ├── dto/
-│       │   │   ├── TourDto.java              # Data Transfer Object für Touren
-│       │   │   └── TourLogDto.java           # DTO für Tour-Logs
-│       │   ├── mapper/
-│       │   │   ├── TourMapper.java           # Entity ↔ DTO Konvertierung (Tour)
-│       │   │   └── TourLogMapper.java        # Entity ↔ DTO Konvertierung (Log)
+│       │   │   ├── CreateTourRequest.java      # Eingabe beim Anlegen/Bearbeiten
+│       │   │   ├── TourResponse.java           # Ausgabe inkl. berechneter Attribute
+│       │   │   ├── TourExportDto.java          # für Export/Import (inkl. Logs)
+│       │   │   ├── TourLogDto.java
+│       │   │   ├── AuthRequest.java / AuthResponse.java
+│       │   │   └── GeocodingResultDto.java
+│       │   ├── exception/                      # eigene Exception-Klassen
+│       │   ├── mapper/                         # Entity ↔ DTO Konvertierung
 │       │   ├── model/
-│       │   │   ├── Tour.java                 # Tour Entity (JPA)
-│       │   │   ├── TourLog.java              # Tour Log Entity (JPA)
-│       │   │   └── TransportType.java        # Enum (WALK, BICYCLE, CAR, …)
+│       │   │   ├── Tour.java
+│       │   │   ├── TourLog.java
+│       │   │   ├── TransportType.java          # WALK, BICYCLE, CAR, PUBLIC_TRANSPORT
+│       │   │   └── User.java
 │       │   ├── repository/
-│       │   │   ├── TourRepository.java       # Repository für Touren
-│       │   │   └── TourLogRepository.java    # Repository für Logs
+│       │   ├── security/
+│       │   │   ├── JwtAuthFilter.java
+│       │   │   ├── JwtService.java
+│       │   │   └── SecurityConfig.java
 │       │   └── service/
-│       │       ├── TourService.java          # Service für Touren
-│       │       └── TourLogService.java       # Service für Logs
+│       │       ├── AuthServiceImpl.java
+│       │       ├── ImageStorageService.java
+│       │       ├── TourServiceImpl.java
+│       │       ├── TourLogServiceImpl.java
+│       │       ├── TourExportServiceImpl.java
+│       │       ├── TourImportServiceImpl.java
+│       │       ├── shared/
+│       │       │   └── SecurityContextService.java
+│       │       └── tour/
+│       │           ├── TourDtoAssembler.java   # baut TourResponse inkl. Logs (kein N+1)
+│       │           ├── TourEnrichmentService.java  # ORS-Aufruf beim Speichern
+│       │           ├── TourOwnershipGuard.java
+│       │           └── TourSearchService.java
 │       └── resources/
-│           ├── application.properties        # Produktions-Konfiguration (PostgreSQL)
-│           ├── application-dev.properties    # Dev-Profil (H2 In-Memory)
-│           └── init.sql                      # Initiales DB-Schema
+│           ├── application.properties          # PostgreSQL (Produktion)
+│           ├── application-dev.properties      # H2 In-Memory (Entwicklung)
+│           └── init.sql
 │
-└── frontend/                       # Angular Single-Page-Application
+└── frontend/                       # Angular 18 SPA
     ├── Dockerfile
-    ├── nginx.conf                  # Nginx-Konfiguration
+    ├── nginx.conf
     └── src/app/
-        ├── app.component.*         # Root-Layout & Shell
-        ├── app.routes.ts           # Routing-Konfiguration
+        ├── app.routes.ts           # /login, /register, / (hinter AuthGuard)
+        ├── guards/
+        │   └── auth.guard.ts
+        ├── interceptors/
+        │   ├── jwt.interceptor.ts          # hängt Token an jeden Request
+        │   └── auth-error.interceptor.ts   # 401 → automatischer Logout
         ├── models/
-        │   ├── tour.model.ts       # Interface & Enums für Touren
-        │   └── tour-log.model.ts   # Interface für Tour-Logs
+        │   ├── tour.model.ts
+        │   ├── tour-log.model.ts
+        │   └── auth.model.ts
         ├── services/
-        │   ├── tour-api.service.ts         # API-Aufrufe (Tours)
-        │   ├── tour-log-api.service.ts     # API-Aufrufe (Logs)
-        │   ├── tour-state.service.ts       # State Management (Tours)
-        │   ├── tour-log-state.service.ts   # State Management (Logs)
-        │   ├── tour-ui-state.service.ts    # UI-Logik für Tour-Formular
-        │   └── tour-log-ui-state.service.ts # UI-Logik für Log-Formular
+        │   ├── auth.service.ts
+        │   ├── geocoding.service.ts
+        │   ├── tour-api.service.ts
+        │   ├── tour-log-api.service.ts
+        │   ├── tour-state.service.ts       # Signal-basiertes State Management
+        │   ├── tour-log-state.service.ts
+        │   ├── tour-ui-state.service.ts
+        │   └── tour-log-ui-state.service.ts
         ├── shared/
-        │   └── button/             # Wiederverwendbare Button-Komponente
+        │   ├── button/
+        │   └── route-map/                  # Leaflet-Karte
         ├── components/
-        │   ├── tour-list/          # Linke Spalte: Liste aller Touren
-        │   ├── tour-details/       # Rechte Spalte: Hauptansicht & Tour-Details
-        │   ├── tour-form/          # Formular für Tour Erstellen/Bearbeiten
-        │   ├── tour-log-list/      # Liste der Logs unter den Tour-Details
-        │   └── tour-log-form/      # Formular für Log Erstellen/Bearbeiten
+        │   ├── login/
+        │   ├── register/
+        │   ├── tour-planner/               # Haupt-Shell mit Master-Detail-Layout
+        │   ├── tour-list/                  # Liste + Suchleiste + Logout
+        │   ├── tour-details/               # Detailansicht + Badges + Karte + Logs
+        │   ├── tour-form/
+        │   ├── tour-log-list/
+        │   └── tour-log-form/
         └── utils/
-            └── format-duration.util.ts # Utility für Zeit-Formatierung
+            └── format-duration.util.ts     # Sekunden → "1h 23min"
 ```
