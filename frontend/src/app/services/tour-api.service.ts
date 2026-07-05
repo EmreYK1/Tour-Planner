@@ -1,7 +1,6 @@
 // frontend/src/app/services/tour-api.service.ts
-// Kümmert sich ausschließlich um HTTP-Calls – kein State, keine Logik, nur Daten holen und schicken.
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -10,42 +9,40 @@ import type { Tour } from '../models/tour.model';
 @Injectable({ providedIn: 'root' })
 export class TourApiService {
   private readonly http = inject(HttpClient);
-
-  // Basis-URL zur Backend-API – der Proxy leitet /api in der Dev-Umgebung weiter
   private readonly resourceUrl = '/api/tours';
 
-  // Holt alle Touren als Liste
-  getAll(): Observable<Tour[]> {
-    return this.http.get<Tour[]>(this.resourceUrl);
+  // Holt alle Touren, optional gefiltert nach Suchbegriff.
+  getAll(search?: string): Observable<Tour[]> {
+    const params = search?.trim()
+      ? new HttpParams().set('search', search.trim())
+      : undefined;
+    return this.http.get<Tour[]>(this.resourceUrl, { params });
   }
 
-  // Holt eine einzelne Tour anhand ihrer ID
+  // Holt eine einzelne Tour anhand ihrer ID.
   getById(id: number): Observable<Tour> {
     return this.http.get<Tour>(`${this.resourceUrl}/${id}`);
   }
 
-  // Legt eine neue Tour an und gibt die gespeicherte Version (mit ID) zurück
+  // Legt eine neue Tour an.
   create(tour: Tour): Observable<Tour> {
     return this.http.post<Tour>(this.resourceUrl, tour);
   }
 
-
-  // Aktualisiert eine bestehende Tour – das Backend gibt die aktualisierte Tour zurück
+  // Aktualisiert eine bestehende Tour.
   update(id: number, tour: Tour): Observable<Tour> {
     return this.http.put<Tour>(`${this.resourceUrl}/${id}`, tour);
   }
 
+  // Lädt ein Bild für eine Tour hoch.
   uploadImage(id: number, file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(`${this.resourceUrl}/${id}/image`, formData, { responseType: 'text' });
-}
-  // Löscht eine Tour anhand ihrer ID
+  }
+
+  // Löscht eine Tour anhand ihrer ID.
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
   }
 }
-
-
-
-

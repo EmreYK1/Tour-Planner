@@ -1,9 +1,11 @@
 // frontend/src/app/components/tour-list/tour-list.component.ts
-// Sidebar-Komponente: zeigt die Tourliste an und reagiert auf Klicks und Ladefehler.
 
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
 import { AuthService } from '../../services/auth.service';
@@ -12,7 +14,7 @@ import { Tour, TRANSPORT_LABELS } from '../../models/tour.model';
 @Component({
   selector: 'app-tour-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './tour-list.component.html',
   styleUrl: './tour-list.component.scss'
 })
@@ -22,26 +24,40 @@ export class TourListComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  // Signals direkt ans Template weitergeben – kein Kopieren, kein Umweg
   readonly tours = this.tourState.tours;
   readonly loading = this.tourState.loading;
   readonly loadError = this.tourState.loadError;
   readonly selectedTour = this.tourState.selectedTour;
-
+  readonly searchQuery = this.tourState.searchQuery;
   readonly transportLabels = TRANSPORT_LABELS;
 
-  // Wird beim Klick auf ein Tour-Element in der Liste aufgerufen.
-  // Offenes Formular wird geschlossen, damit die Tour-Details sichtbar sind.
+  readonly searchControl = new FormControl('', { nonNullable: true });
+
+  constructor() {
+    // debounceTime(300) + distinctUntilChanged() verhindern unnötige API-Calls beim Tippen.
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed()
+    ).subscribe((query) => {
+      query.trim() === ''
+        ? this.tourState.loadTours()
+        : this.tourState.loadTours(query.trim());
+    });
+  }
+
+  // Schließt offene Formulare und wählt die angeklickte Tour aus.
   onTourClick(tour: Tour): void {
     this.tourUiState.closeForm();
     this.tourState.selectTour(tour);
   }
 
-  // Öffnet das leere Formular zum Anlegen einer neuen Tour
+  // Öffnet das Formular zum Anlegen einer neuen Tour.
   openCreateForm(): void {
     this.tourUiState.openCreateForm();
   }
 
+  // Meldet den Nutzer ab und navigiert zur Login-Seite.
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
