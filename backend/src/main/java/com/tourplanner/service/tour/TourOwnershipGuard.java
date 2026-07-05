@@ -29,6 +29,7 @@ public class TourOwnershipGuard {
     }
 
     public boolean isOwnedBy(Tour tour, User user) {
-        return tour.getOwner().getId().equals(user.getId());
+        // owner kann bei Alt-Daten aus der Zeit vor dem Auth-Feature noch null sein
+        return tour.getOwner() != null && tour.getOwner().getId().equals(user.getId());
     }
 }

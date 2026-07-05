@@ -1,0 +1,62 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo-icon">🗺️</div>
+      <h1 class="auth-title">Tour Planner</h1>
+      <p class="auth-subtitle">Willkommen zurück! Melde dich an, um fortzufahren.</p>
+    </div>
+
+    <form class="auth-form" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <span class="error-icon">⚠️</span>
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="form-field">
+        <label for="email">E-Mail</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="deine@email.com"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Passwort</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading() || !loginForm.valid"
+      >
+        @if (isLoading()) {
+          <span class="spinner"></span> Anmelden…
+        } @else {
+          Anmelden
+        }
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Noch kein Konto?
+      <a routerLink="/register">Jetzt registrieren</a>
+    </p>
+  </div>
+</div>

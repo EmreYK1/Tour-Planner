@@ -3,8 +3,10 @@
 
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { TourStateService } from '../../services/tour-state.service';
 import { TourUiStateService } from '../../services/tour-ui-state.service';
+import { AuthService } from '../../services/auth.service';
 import { Tour, TRANSPORT_LABELS } from '../../models/tour.model';
 
 @Component({
@@ -17,6 +19,8 @@ import { Tour, TRANSPORT_LABELS } from '../../models/tour.model';
 export class TourListComponent {
   private readonly tourState = inject(TourStateService);
   private readonly tourUiState = inject(TourUiStateService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   // Signals direkt ans Template weitergeben – kein Kopieren, kein Umweg
   readonly tours = this.tourState.tours;
@@ -36,5 +40,10 @@ export class TourListComponent {
   // Öffnet das leere Formular zum Anlegen einer neuen Tour
   openCreateForm(): void {
     this.tourUiState.openCreateForm();
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

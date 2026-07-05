@@ -7,13 +7,15 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
+import { authErrorInterceptor } from './interceptors/auth-error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // Fasst mehrere Change-Detection-Events zusammen, damit die App nicht unnötig oft re-rendert
     provideZoneChangeDetection({ eventCoalescing: true }),
-    // Macht HttpClient überall per inject() verfügbar und registriert den JWT-Interceptor
-    provideHttpClient(withInterceptors([jwtInterceptor])),
+    // Macht HttpClient überall per inject() verfügbar; jwtInterceptor hängt den Token an,
+    // authErrorInterceptor loggt bei 401/403 automatisch aus und leitet zum Login um
+    provideHttpClient(withInterceptors([jwtInterceptor, authErrorInterceptor])),
     provideRouter(routes)
   ]
 };

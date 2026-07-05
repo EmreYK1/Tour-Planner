@@ -1,0 +1,75 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo-icon">🗺️</div>
+      <h1 class="auth-title">Tour Planner</h1>
+      <p class="auth-subtitle">Erstelle ein Konto und plane dein nächstes Abenteuer.</p>
+    </div>
+
+    <form class="auth-form" (ngSubmit)="onSubmit()" #registerForm="ngForm">
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <span class="error-icon">⚠️</span>
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="form-field">
+        <label for="email">E-Mail</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="deine@email.com"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Passwort</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="••••••••"
+          required
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="confirmPassword">Passwort bestätigen</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          name="confirmPassword"
+          [(ngModel)]="confirmPassword"
+          placeholder="••••••••"
+          required
+          autocomplete="new-password"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading() || !registerForm.valid"
+      >
+        @if (isLoading()) {
+          <span class="spinner"></span> Registrierung…
+        } @else {
+          Konto erstellen
+        }
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Bereits ein Konto?
+      <a routerLink="/login">Zum Login</a>
+    </p>
+  </div>
+</div>
