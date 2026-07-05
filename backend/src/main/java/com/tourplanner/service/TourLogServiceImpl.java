@@ -7,11 +7,15 @@ import com.tourplanner.model.TourLog;
 import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.service.tourlog.TourLogOwnershipGuard;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TourLogServiceImpl implements TourLogService {
+
+    private static final Logger log = LoggerFactory.getLogger(TourLogServiceImpl.class);
 
     private final TourLogRepository tourLogRepository;
     private final TourLogMapper tourLogMapper;
@@ -30,9 +34,11 @@ public class TourLogServiceImpl implements TourLogService {
     @SuppressWarnings("null")
     public List<TourLogDto> findByTourId(Long tourId) {
         ownershipGuard.requireOwnedTour(tourId);
-        return tourLogRepository.findByTourId(tourId).stream()
+        List<TourLogDto> result = tourLogRepository.findByTourId(tourId).stream()
                 .map(tourLogMapper::toDto)
                 .toList();
+        log.info("Fetching logs for tourId={} – found {}", tourId, result.size());
+        return result;
     }
 
     @Override
@@ -41,7 +47,9 @@ public class TourLogServiceImpl implements TourLogService {
     public TourLogDto create(Long tourId, TourLogDto dto) {
         Tour tour = ownershipGuard.requireOwnedTour(tourId);
         TourLog entity = tourLogMapper.toNewEntity(dto, tour);
-        return tourLogMapper.toDto(tourLogRepository.save(entity));
+        TourLogDto result = tourLogMapper.toDto(tourLogRepository.save(entity));
+        log.info("TourLog created with id={} for tourId={}", result.id(), tourId);
+        return result;
     }
 
     @Override
@@ -50,7 +58,9 @@ public class TourLogServiceImpl implements TourLogService {
     public TourLogDto update(Long tourId, Long logId, TourLogDto dto) {
         TourLog entity = ownershipGuard.requireLogOfOwnedTour(tourId, logId);
         tourLogMapper.apply(dto, entity);
-        return tourLogMapper.toDto(tourLogRepository.save(entity));
+        TourLogDto result = tourLogMapper.toDto(tourLogRepository.save(entity));
+        log.info("TourLog updated with id={} for tourId={}", logId, tourId);
+        return result;
     }
 
     @Override
@@ -59,5 +69,6 @@ public class TourLogServiceImpl implements TourLogService {
     public void delete(Long tourId, Long logId) {
         TourLog entity = ownershipGuard.requireLogOfOwnedTour(tourId, logId);
         tourLogRepository.delete(entity);
+        log.info("TourLog deleted with id={} for tourId={}", logId, tourId);
     }
 }

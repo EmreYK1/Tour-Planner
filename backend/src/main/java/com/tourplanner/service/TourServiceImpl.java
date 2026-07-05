@@ -17,11 +17,15 @@ import com.tourplanner.service.tour.TourSearchService;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TourServiceImpl implements TourService {
+
+    private static final Logger log = LoggerFactory.getLogger(TourServiceImpl.class);
 
     private final TourRepository tourRepository;
     private final TourMapper tourMapper;
@@ -51,6 +55,7 @@ public class TourServiceImpl implements TourService {
     @Transactional(readOnly = true)
     public List<TourResponse> findAll() {
         List<Tour> tours = toursOfCurrentUser();
+        log.info("Fetching all tours for current user – found {}", tours.size());
         // Alle Logs in einer einzigen Query laden – kein N+1
         Map<Long, List<TourLog>> logMap = dtoAssembler.buildLogMap(tours);
         return tours.stream()
@@ -64,6 +69,7 @@ public class TourServiceImpl implements TourService {
         if (query == null || query.isBlank()) {
             return findAll();
         }
+        log.info("Searching tours with query='{}'", query);
         User currentUser = securityContextService.getCurrentUser();
         List<Tour> ownedTours = tourRepository.findByOwner(currentUser);
         List<Tour> matched = searchService.filterByQuery(ownedTours, currentUser, query);
@@ -89,7 +95,9 @@ public class TourServiceImpl implements TourService {
         Tour entity = tourMapper.toNewEntity(request);
         entity.setOwner(securityContextService.getCurrentUser());
         enrichmentService.enrichWithRouteData(entity, request);
-        return dtoAssembler.assemble(tourRepository.save(entity));
+        TourResponse response = dtoAssembler.assemble(tourRepository.save(entity));
+        log.info("Tour created with id={}, name='{}'", response.id(), response.name());
+        return response;
     }
 
     @Override
@@ -98,7 +106,9 @@ public class TourServiceImpl implements TourService {
         Tour entity = ownershipGuard.requireOwnedTour(id);
         tourMapper.apply(request, entity);
         enrichmentService.enrichWithRouteData(entity, request);
-        return dtoAssembler.assemble(tourRepository.save(entity));
+        TourResponse response = dtoAssembler.assemble(tourRepository.save(entity));
+        log.info("Tour updated with id={}", id);
+        return response;
     }
 
     @Override
@@ -106,13 +116,16 @@ public class TourServiceImpl implements TourService {
     public TourResponse updateImage(long id, String imageUrl) {
         Tour entity = ownershipGuard.requireOwnedTour(id);
         entity.setImage(imageUrl);
-        return dtoAssembler.assemble(tourRepository.save(entity));
+        TourResponse response = dtoAssembler.assemble(tourRepository.save(entity));
+        log.info("Image updated for tour id={}", id);
+        return response;
     }
 
     @Override
     @Transactional
     public void delete(long id) {
         tourRepository.delete(ownershipGuard.requireOwnedTour(id));
+        log.info("Tour deleted with id={}", id);
     }
 
     private List<Tour> toursOfCurrentUser() {
