@@ -35,6 +35,9 @@ export interface Tour {
   fromLat?:number | null;
   toLon?: number | null;
   toLat?: number | null;
+  // Vom Backend berechnete Attribute (nur lesend, kommen aus dem TourDto)
+  popularity?: number;
+  childFriendliness?: string;
 }
 
 // Erzeugt eine leere Tour als Startwert – nützlich fürs Formular-Reset
