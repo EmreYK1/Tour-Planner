@@ -42,6 +42,12 @@ public class TourMapper {
         entity.setDistance(request.distance());
         entity.setEstimatedTime(request.estimatedTime());
         entity.setImage(emptyToNull(request.image()));
+        // Nur überschreiben, wenn mitgeschickt – sonst würde ein Update ohne Koordinaten
+        // (z. B. direkter API-Call ohne Geocoding) zuvor gespeicherte Koordinaten löschen.
+        if (request.fromLon() != null) entity.setFromLon(request.fromLon());
+        if (request.fromLat() != null) entity.setFromLat(request.fromLat());
+        if (request.toLon() != null) entity.setToLon(request.toLon());
+        if (request.toLat() != null) entity.setToLat(request.toLat());
     }
 
     private static String nullToEmpty(String value) {

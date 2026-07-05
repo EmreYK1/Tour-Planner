@@ -154,4 +154,28 @@ class TourMapperTest {
         assertThat(existing.getEstimatedTime()).isEqualTo(update.estimatedTime());
         assertThat(existing.getImage()).isEqualTo(update.image());
     }
+
+    // Regressionstest: Ein Update ohne mitgeschickte Koordinaten darf zuvor
+    // gespeicherte Koordinaten nicht löschen (sonst bricht das Wetter-Feature
+    // für Touren, die z. B. per Postman ohne fromLon/fromLat aktualisiert werden).
+    @Test
+    void apply_updateWithoutCoordinates_keepsExistingCoordinates() {
+        Tour entity = new Tour();
+        entity.setFromLon(16.3738);
+        entity.setFromLat(48.2082);
+        entity.setToLon(16.2311);
+        entity.setToLat(47.9967);
+
+        CreateTourRequest requestWithoutCoordinates = new CreateTourRequest(
+                "Wienerwald Tour", "Beschreibung", "Wien", "Baden",
+                TransportType.BICYCLE, 35.2, 7200L, null,
+                null, null, null, null);
+
+        sut.apply(requestWithoutCoordinates, entity);
+
+        assertThat(entity.getFromLon()).isEqualTo(16.3738);
+        assertThat(entity.getFromLat()).isEqualTo(48.2082);
+        assertThat(entity.getToLon()).isEqualTo(16.2311);
+        assertThat(entity.getToLat()).isEqualTo(47.9967);
+    }
 }

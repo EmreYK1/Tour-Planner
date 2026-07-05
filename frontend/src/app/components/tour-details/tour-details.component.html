@@ -134,6 +134,9 @@
   </div>
   }
 
+  <!-- WETTER AM TOURSTART (Unique Feature: OpenWeatherMap) -->
+  <app-weather-widget [tourId]="tour.id" />
+
   <!-- KARTENANSICHT -->
   <app-route-map [geometry]="selectedTour()?.routeGeometry ?? null"/>
 

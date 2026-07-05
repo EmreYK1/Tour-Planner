@@ -59,6 +59,18 @@ public class Tour {
     @Column(name = "route_geometry", columnDefinition = "TEXT")
     private String routeGeometry;
 
+    @Column(name = "from_lon")
+    private Double fromLon;
+
+    @Column(name = "from_lat")
+    private Double fromLat;
+
+    @Column(name = "to_lon")
+    private Double toLon;
+
+    @Column(name = "to_lat")
+    private Double toLat;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

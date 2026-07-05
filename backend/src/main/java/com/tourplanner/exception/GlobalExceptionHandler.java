@@ -67,6 +67,11 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.BAD_GATEWAY, "Routenberechnung fehlgeschlagen: " + ex.getMessage());
     }
 
+    @ExceptionHandler(WeatherApiException.class)
+    public ResponseEntity<ErrorResponse> handleWeatherApi(WeatherApiException ex) {
+        return respond(HttpStatus.BAD_GATEWAY, ex.getMessage());
+    }
+
     // ── Springeigene Status-Exceptions (z. B. aus Filtern / Security) ────────
 
     @ExceptionHandler(ResponseStatusException.class)

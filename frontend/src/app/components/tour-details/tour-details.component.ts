@@ -11,10 +11,11 @@ import { TourLogListComponent } from '../tour-log-list/tour-log-list.component';
 import { formatDuration } from '../../utils/format-duration.util';
 import { ButtonComponent } from '../../shared/button/button.component';
 import { RouteMapComponent } from '../../shared/route-map/route-map.component';
+import { WeatherWidgetComponent } from '../../shared/weather-widget/weather-widget.component';
 
 @Component({
   selector: 'app-tour-details',
-  imports: [TourLogListComponent, ButtonComponent, RouteMapComponent],
+  imports: [TourLogListComponent, ButtonComponent, RouteMapComponent, WeatherWidgetComponent],
   templateUrl: './tour-details.component.html',
   styleUrl: './tour-details.component.scss'
 })

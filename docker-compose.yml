@@ -32,6 +32,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: tourplanner
       # Keine Flyway-Migrationen im Repo; Schema kommt über init.sql
       SPRING_FLYWAY_ENABLED: "false"
+      # Aus Host-Umgebung bzw. .env-Datei übernommen (siehe README)
+      ORS_API_KEY: ${ORS_API_KEY:-}
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
     ports:
       - "8080:8080"
     depends_on:

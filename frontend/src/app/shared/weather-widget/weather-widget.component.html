@@ -1,0 +1,15 @@
+@if (loading) {
+<div class="weather-card weather-loading">Wetter wird geladen…</div>
+} @else if (weather) {
+<div class="weather-card">
+  <img class="weather-icon" [src]="iconUrl(weather.icon)" [alt]="weather.description" />
+  <div class="weather-info">
+    <span class="weather-location">{{ weather.locationName || 'Tour-Start' }}</span>
+    <span class="weather-temp">{{ weather.temperature | number: '1.0-0' }}°C</span>
+    <span class="weather-desc">{{ weather.description }} · gefühlt {{ weather.feelsLike | number: '1.0-0' }}°C</span>
+    <span class="weather-meta">Wind {{ weather.windSpeed | number: '1.0-1' }} m/s · Luftfeuchte {{ weather.humidity }}%</span>
+  </div>
+</div>
+} @else if (errorMessage) {
+<div class="weather-card weather-error">{{ errorMessage }}</div>
+}
