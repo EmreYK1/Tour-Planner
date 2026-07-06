@@ -9,6 +9,7 @@ target/
 .settings/
 application-local.properties
 .env
+backend/logs/
 
 # Lokale Kanban-Planung (nicht versionieren)
 docs/kanban/
