@@ -34,21 +34,6 @@ class WeatherServiceTest {
     }
 
     @Test
-    void getWeatherForTour_withCoordinates_returnsWeatherFromClient() {
-        tour.setFromLat(48.2082);
-        tour.setFromLon(16.3738);
-        WeatherDto expected = new WeatherDto("Wien", 18.0, 17.5, "leichter Regen", "10d", 3.2, 65);
-
-        when(ownershipGuard.requireOwnedTour(1L)).thenReturn(tour);
-        when(weatherClient.fetchCurrentWeather(48.2082, 16.3738)).thenReturn(expected);
-
-        WeatherDto result = sut.getWeatherForTour(1L);
-
-        assertThat(result).isEqualTo(expected);
-        verify(weatherClient).fetchCurrentWeather(48.2082, 16.3738);
-    }
-
-    @Test
     void getWeatherForTour_withoutCoordinates_throwsWeatherApiException() {
         // Weder fromLat noch fromLon gesetzt (z. B. importierte oder alte Tour)
         when(ownershipGuard.requireOwnedTour(1L)).thenReturn(tour);

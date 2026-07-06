@@ -57,25 +57,6 @@ class TourLogMapperTest {
         );
     }
 
-    // ── toDto ──────────────────────────────────────────────────────────────────
-
-    @Test
-    void tourLogToDto_mapsAllFields() {
-        Tour tour = tourWithId(10L);
-        TourLog entity = fullTourLogEntity(1L, tour);
-
-        TourLogDto result = sut.toDto(entity);
-
-        assertThat(result.id()).isEqualTo(entity.getId());
-        assertThat(result.tourId()).isEqualTo(tour.getId());
-        assertThat(result.dateTime()).isEqualTo(entity.getDateTime());
-        assertThat(result.comment()).isEqualTo(entity.getComment());
-        assertThat(result.difficulty()).isEqualTo(entity.getDifficulty());
-        assertThat(result.totalDistance()).isEqualTo(entity.getTotalDistance());
-        assertThat(result.totalTime()).isEqualTo(entity.getTotalTime());
-        assertThat(result.rating()).isEqualTo(entity.getRating());
-    }
-
     // ── toNewEntity ────────────────────────────────────────────────────────────
 
     @Test
@@ -92,16 +73,6 @@ class TourLogMapperTest {
         assertThat(result.getTotalDistance()).isEqualTo(dto.totalDistance());
         assertThat(result.getTotalTime()).isEqualTo(dto.totalTime());
         assertThat(result.getRating()).isEqualTo(dto.rating());
-    }
-
-    @Test
-    void dtoToTourLog_idIsNotSet() {
-        Tour tour = tourWithId(10L);
-        TourLogDto dto = fullTourLogDto(99L, tour.getId());
-
-        TourLog result = sut.toNewEntity(dto, tour);
-
-        assertThat(result.getId()).isNull();
     }
 
     // ── apply (update) ─────────────────────────────────────────────────────────

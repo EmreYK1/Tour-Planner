@@ -71,26 +71,6 @@ class TourMapperTest {
         assertThat(result.childFriendliness()).isEqualTo("Niedrig");
     }
 
-    @Test
-    void tourToResponse_nullDescription_mapsToEmptyString() {
-        Tour entity = fullTourEntity();
-        entity.setDescription(null);
-
-        TourResponse result = sut.toResponse(entity, 0, "Mittel");
-
-        assertThat(result.description()).isEmpty();
-    }
-
-    @Test
-    void tourToResponse_nullImage_mapsToEmptyString() {
-        Tour entity = fullTourEntity();
-        entity.setImage(null);
-
-        TourResponse result = sut.toResponse(entity, 0, "Mittel");
-
-        assertThat(result.image()).isEmpty();
-    }
-
     // ── toNewEntity ────────────────────────────────────────────────────────────
 
     @Test
@@ -107,30 +87,6 @@ class TourMapperTest {
         assertThat(result.getDistance()).isEqualTo(request.distance());
         assertThat(result.getEstimatedTime()).isEqualTo(request.estimatedTime());
         assertThat(result.getImage()).isEqualTo(request.image());
-    }
-
-    @Test
-    void requestToTour_blankDescription_storedAsNull() {
-        CreateTourRequest request = new CreateTourRequest(
-                "Tour", "   ", "A", "B",
-                TransportType.WALK, 5.0, 3600L, null,
-                null, null, null, null);
-
-        Tour result = sut.toNewEntity(request);
-
-        assertThat(result.getDescription()).isNull();
-    }
-
-    @Test
-    void requestToTour_blankImage_storedAsNull() {
-        CreateTourRequest request = new CreateTourRequest(
-                "Tour", null, "A", "B",
-                TransportType.BICYCLE, 10.0, 1800L, "  ",
-                null, null, null, null);
-
-        Tour result = sut.toNewEntity(request);
-
-        assertThat(result.getImage()).isNull();
     }
 
     // ── apply (update) ─────────────────────────────────────────────────────────

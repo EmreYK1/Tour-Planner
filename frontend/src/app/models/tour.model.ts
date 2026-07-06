@@ -6,7 +6,6 @@ export const TRANSPORT_TYPES = [
   'WALK',
   'BICYCLE',
   'CAR',
-  'PUBLIC_TRANSPORT',
 ] as const;
 
 export type TransportType = (typeof TRANSPORT_TYPES)[number];
@@ -16,7 +15,6 @@ export const TRANSPORT_LABELS: Record<TransportType, string> = {
   WALK: 'Zu Fuß',
   BICYCLE: 'Fahrrad',
   CAR: 'Auto',
-  PUBLIC_TRANSPORT: 'Öffentliche Verkehrsmittel',
 };
 
 // Das zentrale Tour-Interface; id ist null solange die Tour noch nicht gespeichert wurde
